@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- BITEMAP_VERSION: v017 (bump only on a STABLE snapshot; keep this line and the
+<!-- BITEMAP_VERSION: v020 (bump only on a STABLE snapshot; keep this line and the
      #versionLabel text below in sync — the snapshot workflow greps this line) -->
 <html lang="en">
 
@@ -168,35 +168,6 @@
             border-color: var(--muted);
             color: var(--ink);
             background: color-mix(in srgb, var(--muted) 12%, transparent);
-        }
-
-        .location-strip {
-            max-width: 1200px;
-            margin: 10px auto 0;
-            padding: 0 28px 4px;
-            font-size: 12px;
-            color: var(--muted);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .location-strip i {
-            color: var(--wind);
-            font-size: 12px;
-        }
-
-        .location-strip strong {
-            color: var(--ink);
-            font-weight: 700;
-        }
-
-        .location-strip.denied i {
-            color: #C96A6A;
-        }
-
-        .location-strip.home i {
-            color: var(--clouds);
         }
 
         /* ---------- Modal ---------- */
@@ -611,22 +582,17 @@
         .wp-conditions {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px 16px;
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .wp-conditions.loading,
+        .wp-conditions.empty {
             background: var(--bg2);
             border: 1px solid var(--line);
             border-radius: 8px;
             padding: 10px 12px;
             font-size: 12.5px;
-            color: var(--muted);
-            margin-bottom: 12px;
-        }
-
-        .wp-conditions strong {
-            color: var(--ink);
-        }
-
-        .wp-conditions.loading,
-        .wp-conditions.empty {
             color: var(--muted);
             font-style: italic;
         }
@@ -980,6 +946,13 @@
             color: var(--muted);
         }
 
+        .waypoints-table td.wp-row-desc {
+            color: var(--muted);
+            max-width: 220px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
         .waypoints-table td.wp-row-icons {
             text-align: right;
             color: var(--muted);
@@ -1148,6 +1121,14 @@
                 width: 100%;
             }
 
+            /* Same 2x2 grid treatment for the waypoint dialog's conditions chips, since they're the same
+       .chip elements as the header and should behave the same way on phones. */
+            .wp-conditions:not(.loading):not(.empty) {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
             .chip {
                 padding: 10px 8px;
                 border-radius: 12px;
@@ -1234,11 +1215,6 @@
         </div>
     </header>
 
-    <div class="location-strip" id="locationStrip">
-        <i class="fa fa-map-marker" id="locationStripIcon"></i>
-        <span id="locationStripText">Checking location…</span>
-    </div>
-
     <!-- ===== Settings modal ===== -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-box">
@@ -1302,12 +1278,14 @@
             </p>
             <div id="speciesPresetRows"></div>
 
-            <p class="settings-section-label" style="margin-top:22px;">Backend sync (photos)</p>
+            <p class="settings-section-label" style="margin-top:22px;">Backend sync</p>
             <p class="settings-hint">
-                Optional. Lets full-size catch photos back up to your own storage server instead of
+                Optional. Enter the same Data URL and Token on multiple devices to keep them in sync —
+                waypoints, settings (units, pin color labels, species presets, filters), and full-size
+                catch photos all push and pull through your own storage server automatically instead of
                 staying only on this device. Leave both blank and BITEMAP works exactly as it does today,
-                fully local. Stored only on this device — never included if BITEMAP ever syncs settings
-                across devices, since these are credentials, not preferences.
+                fully local. The Data URL and Token themselves are stored only on this device and never
+                synced — they're credentials, not preferences.
             </p>
             <input type="text" class="edit-select" id="apiDataUrlInput" placeholder="Data URL (root of API)"
                 autocapitalize="off" autocorrect="off" spellcheck="false">
@@ -1442,7 +1420,7 @@
 
             <p class="settings-section-label" style="margin-top:18px;">Weather</p>
             <p class="settings-hint">
-                The Wind / Temp / Baro / Clouds chips in the header show current conditions at your
+                The Temp / Clouds / Wind / Baro chips in the header show current conditions at your
                 location — click any chip to refresh it. The Weather tab (next to Waypoints, above the
                 map) gives you Windy's full interactive map and forecast table, including radar, for
                 browsing conditions in more depth.
@@ -1457,13 +1435,17 @@
 
             <p class="settings-section-label" style="margin-top:18px;">Moving data between devices</p>
             <p class="settings-hint">
-                There's no account or server yet, so each device keeps its own waypoints (and photos)
-                in this browser. Use Export (bottom of the page) to copy your waypoint data to the
-                clipboard, paste it somewhere to carry over (a note app works fine), then paste it into
-                Import on another device. Import replaces that device's waypoints with whatever you
-                paste, so it also carries over any deleting you've done. Photos don't travel with
-                Export/Import — they stay only on the device you took them on until there's a real
-                backend to sync them.
+                By default each device keeps its own waypoints, settings, and photos in this browser,
+                with nothing shared automatically. Use Export (bottom of the page) to copy your waypoint
+                data to the clipboard, paste it somewhere to carry over (a note app works fine), then
+                paste it into Import on another device. Import replaces that device's waypoints with
+                whatever you paste, so it also carries over any deleting you've done. Photos don't travel
+                with Export/Import — they stay only on the device you took them on.
+                <br><br>
+                If you enter the same Data URL and Token on multiple devices (Settings, under Backend
+                sync), those devices automatically stay in sync instead — waypoints, settings (units,
+                pin color labels, species presets, filters), and full-size photos all push and pull
+                through that shared storage in the background, no manual Export/Import needed.
             </p>
 
             <div class="modal-actions" style="justify-content:flex-end;">
@@ -1524,7 +1506,7 @@
                         <tr>
                             <th>Date</th>
                             <th>Species</th>
-                            <th>Length</th>
+                            <th>Description</th>
                             <th></th>
                             <th></th>
                         </tr>
@@ -1548,13 +1530,12 @@
     <div class="footer-links">
         <a href="#" id="exportWaypointsLink">Export waypoints</a>
         <a href="#" id="importWaypointsLink">Import waypoints</a>
-        <a href="#" id="resetSettingsLink">Reset settings</a>
     </div>
     <div class="footer-status" id="dataActionsStatus"></div>
 
     <div id="versionLabel"
         style="text-align:center; padding:18px 0 26px; font-size:11px; letter-spacing:1px; color:var(--muted); font-family:Consolas,'Courier New',monospace;">
-        v017</div>
+        v020</div>
 
     <script>
         (function () {
@@ -1589,9 +1570,19 @@
                 homeLon: null,
                 units: 'imperial',
                 mapZoom: 13,
-                colorLabels: { '#FFDD00': 'POI', '#992E00': 'Restaurants' }, // keyed by uppercase hex from PIN_COLOR_PRESETS, e.g. { "#E0954B": "Spots I like" }
+                colorLabels: { // keyed by uppercase hex from PIN_COLOR_PRESETS, e.g. { "#E0954B": "Spots I like" }
+                    '#3FB68A': 'FISH',
+                    '#4FA3D1': 'BRO',
+                    '#E0954B': 'My Spots',
+                    '#FF0000': 'Important',
+                    '#9B7FD4': 'Landmarks',
+                    '#EAF4F2': 'Undefined',
+                    '#FF00AE': "Eddy's",
+                    '#FFDD00': 'POI',
+                    '#992E00': 'Restaurants'
+                },
                 speciesPresets: DEFAULT_SPECIES_PRESETS.slice(),
-                activeFilters: { colors: [], species: [] }, // never mutated in place — always replaced wholesale, so a "Reset settings" (which reuses this same object) can't inherit stale filter state
+                activeFilters: { colors: [], species: [] }, // never mutated in place — always replaced wholesale, so anything that re-clones defaultSettings can't inherit stale filter state
                 filterBarCollapsed: false,
                 // Backend sync (photos). Deliberately local-only — never included if/when a settings-sync
                 // feature exists later, since these are credentials, not preferences to carry across devices.
@@ -1774,7 +1765,6 @@
             var wpPhotoSyncStatus = document.getElementById('wpPhotoSyncStatus');
             var exportWaypointsLink = document.getElementById('exportWaypointsLink');
             var importWaypointsLink = document.getElementById('importWaypointsLink');
-            var resetSettingsLink = document.getElementById('resetSettingsLink');
             var dataActionsStatus = document.getElementById('dataActionsStatus');
             var versionLabel = document.getElementById('versionLabel');
             var windChip = document.getElementById('windChip');
@@ -1813,9 +1803,6 @@
             var weatherFrame = document.getElementById('weatherFrame');
             var weatherForecastPanel = document.getElementById('weatherForecastPanel');
             var weatherForecastFrame = document.getElementById('weatherForecastFrame');
-            var locationStrip = document.getElementById('locationStrip');
-            var locationStripIcon = document.getElementById('locationStripIcon');
-            var locationStripText = document.getElementById('locationStripText');
 
             // ---------- Geolocation ----------
             function requestLocation() {
@@ -1888,22 +1875,10 @@
                 fillFromCurrentBtn.disabled = (currentPosition.status !== 'granted');
             }
 
-            function renderLocationStrip() {
-                locationStrip.className = 'location-strip';
-                if (currentPosition.status === 'granted') {
-                    locationStripText.innerHTML = 'Showing conditions near <strong>your current position</strong> (' +
-                        currentPosition.lat.toFixed(3) + ', ' + currentPosition.lon.toFixed(3) + ')';
-                } else if (settings.homeLat != null && settings.homeLon != null) {
-                    locationStrip.classList.add('home');
-                    var label = settings.homeLabel ? settings.homeLabel : (settings.homeLat.toFixed(3) + ', ' + settings.homeLon.toFixed(3));
-                    locationStripText.innerHTML = 'Showing conditions near <strong>Home — ' + escapeHtml(label) + '</strong>';
-                } else if (currentPosition.status === 'denied' || currentPosition.status === 'unavailable' || currentPosition.status === 'unsupported') {
-                    locationStrip.classList.add('home');
-                    locationStripText.innerHTML = 'Showing conditions near <strong>' + escapeHtml(DEFAULT_LOCATION.label) + '</strong> — set your home location in Settings';
-                } else {
-                    locationStripText.textContent = 'Checking location…';
-                }
-            }
+            // The "Showing conditions near..." strip was removed (dead space, no real value) — this is now
+            // a no-op kept so its existing call sites (triggered on geolocation/home-location changes)
+            // don't need to be hunted down individually.
+            function renderLocationStrip() { }
 
             // Effective map/weather anchor point right now, in priority order: live position, saved home,
             // then the fixed 48001 default. Whatever consumes this (the map, the weather chips) doesn't
@@ -2070,10 +2045,10 @@
                     '<p class="wp-popup-title">' + escapeHtml(wp.species) + ' — ' + wp.lengthIn + '"</p>' +
                     '<p class="wp-popup-meta">' + escapeHtml(whenStr) + '</p>' +
                     '<div class="wp-popup-weather">' +
-                    '<span>Wind <strong>' + ktTo(units, wp.weather.windSpeedKt) + ' ' + windUnit + ' ' + escapeHtml(wp.weather.windDir) + '</strong></span>' +
                     '<span>Temp <strong>' + fTo(units, wp.weather.tempF) + tempUnit + '</strong></span>' +
-                    '<span>Baro <strong>' + inHgTo(units, wp.weather.baroInHg) + baroUnit + '</strong></span>' +
                     '<span>Clouds <strong>' + wp.weather.cloudsPct + '%</strong></span>' +
+                    '<span>Wind <strong>' + ktTo(units, wp.weather.windSpeedKt) + ' ' + windUnit + ' ' + escapeHtml(wp.weather.windDir) + '</strong></span>' +
+                    '<span>Baro <strong>' + inHgTo(units, wp.weather.baroInHg) + baroUnit + '</strong></span>' +
                     '</div>' +
                     (wp.notes ? '<p class="wp-popup-notes">' + escapeHtml(wp.notes) + '</p>' : '');
             }
@@ -2183,6 +2158,7 @@
             filterBarHeader.addEventListener('click', function () {
                 settings.filterBarCollapsed = !settings.filterBarCollapsed;
                 saveSettingsToStorage(settings);
+                pushSettingsToApi();
                 applyFilterBarCollapsedState();
             });
 
@@ -2214,6 +2190,7 @@
 
             function onFiltersChanged() {
                 saveSettingsToStorage(settings);
+                pushSettingsToApi();
                 refreshFilterBarUI();
                 plotWaypoints();
             }
@@ -2315,20 +2292,19 @@
                     var whenStr = isNaN(when.getTime()) ? '' : when.toLocaleString(undefined, {
                         month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
                     });
-                    var lengthStr = wp.lengthIn ? wp.lengthIn + '"' : '—';
+                    var descStr = wp.notes ? wp.notes.trim() : '';
                     var wpColor = wp.color || DEFAULT_PIN_COLOR;
                     var wpColorLabel = colorLabelFor(wpColor) || 'No label set';
                     var colorDot = '<span class="wp-color-dot" style="background:' + escapeHtml(wpColor) + ';" title="' + escapeHtml(wpColorLabel) + '"></span>';
                     var photoCount = wp.photoCount != null ? wp.photoCount : (wp.hasPhoto ? 1 : 0);
-                    var icons = '' +
+                    var icons =
                         (photoCount > 0 ? '<i class="fa fa-camera" title="Has ' + photoCount + ' photo' + (photoCount > 1 ? 's' : '') + '"></i>' +
-                            (photoCount > 1 ? '<span class="wp-photo-count-badge">' + photoCount + '</span>' : '') + ' ' : '') +
-                        (wp.notes ? '<i class="fa fa-sticky-note-o" title="Has notes"></i>' : '');
+                            (photoCount > 1 ? '<span class="wp-photo-count-badge">' + photoCount + '</span>' : '') + ' ' : '');
                     return '' +
                         '<tr data-id="' + escapeHtml(wp.id) + '">' +
                         '<td class="wp-row-date">' + escapeHtml(whenStr) + '</td>' +
                         '<td class="wp-row-species">' + colorDot + escapeHtml(wp.species || 'Fish') + '</td>' +
-                        '<td>' + lengthStr + '</td>' +
+                        '<td class="wp-row-desc" title="' + escapeHtml(descStr) + '">' + (descStr ? escapeHtml(descStr) : '—') + '</td>' +
                         '<td class="wp-row-icons">' + icons + '</td>' +
                         '<td class="wp-row-locate">' +
                         '<button type="button" class="wp-locate-btn" data-locate-id="' + escapeHtml(wp.id) + '" title="Show on map" aria-label="Show on map"><i class="fa fa-map-o"></i></button>' +
@@ -2606,28 +2582,32 @@
             });
 
             // ---------- New/edit waypoint dialog ----------
+            // Matches the header's weather-chip order/colors exactly (TEMP, CLOUDS, WIND, BARO) — same
+            // .chip/.chip-label/.chip-value classes, just non-interactive spans instead of the header's
+            // clickable-to-refresh buttons.
             function formatConditionsHtml(base) {
                 var units = settings.units || 'imperial';
                 var windUnit = units === 'metric' ? 'km/h' : 'mph';
                 var tempUnit = units === 'metric' ? '°C' : '°F';
                 var baroUnit = units === 'metric' ? ' hPa' : '"';
                 return '' +
-                    '<span>Wind <strong>' + ktTo(units, base.windSpeedKt) + ' ' + windUnit + ' ' + escapeHtml(base.windDir) + '</strong></span>' +
-                    '<span>Temp <strong>' + fTo(units, base.tempF) + tempUnit + '</strong></span>' +
-                    '<span>Baro <strong>' + inHgTo(units, base.baroInHg) + baroUnit + '</strong></span>' +
-                    '<span>Clouds <strong>' + base.cloudsPct + '%</strong></span>';
+                    '<span class="chip" style="--c:var(--temp)"><span class="chip-label">TEMP</span><span class="chip-value">' + fTo(units, base.tempF) + tempUnit + '</span></span>' +
+                    '<span class="chip" style="--c:var(--clouds)"><span class="chip-label">CLOUDS</span><span class="chip-value">' + base.cloudsPct + '%</span></span>' +
+                    '<span class="chip" style="--c:var(--wind)"><span class="chip-label">WIND</span><span class="chip-value">' + ktTo(units, base.windSpeedKt) + ' ' + windUnit + ' ' + escapeHtml(base.windDir) + '</span></span>' +
+                    '<span class="chip" style="--c:var(--pressure)"><span class="chip-label">BARO</span><span class="chip-value">' + inHgTo(units, base.baroInHg) + baroUnit + '</span></span>';
             }
 
-            // Plain-text version of formatConditionsHtml, for the Share summary (no markup there).
+            // Plain-text version of formatConditionsHtml, for the Share summary (no markup there). Same
+            // Temp/Clouds/Wind/Baro order as the header and the dialog above.
             function formatConditionsText(base) {
                 var units = settings.units || 'imperial';
                 var windUnit = units === 'metric' ? 'km/h' : 'mph';
                 var tempUnit = units === 'metric' ? '°C' : '°F';
                 var baroUnit = units === 'metric' ? ' hPa' : '"';
-                return 'Wind ' + ktTo(units, base.windSpeedKt) + ' ' + windUnit + ' ' + base.windDir +
-                    ', Temp ' + fTo(units, base.tempF) + tempUnit +
-                    ', Baro ' + inHgTo(units, base.baroInHg) + baroUnit +
-                    ', Clouds ' + base.cloudsPct + '%';
+                return 'Temp ' + fTo(units, base.tempF) + tempUnit +
+                    ', Clouds ' + base.cloudsPct + '%' +
+                    ', Wind ' + ktTo(units, base.windSpeedKt) + ' ' + windUnit + ' ' + base.windDir +
+                    ', Baro ' + inHgTo(units, base.baroInHg) + baroUnit;
             }
 
             function toDatetimeLocalValue(date) {
@@ -3754,6 +3734,176 @@
                 }
             });
 
+            // ---------- Share page (rich link for texting/sharing) ----------
+            // Generates a small, fully self-contained HTML page for one catch and PUTs it to the backend's
+            // static-shared-folder endpoint, separate from the generic /data/... API. The filename is
+            // deterministic (share_<waypointId>.html), so BITEMAP never needs a round trip to learn where
+            // the page landed -- it computes the public URL itself. Re-sharing after an edit overwrites the
+            // same file (last write wins), so the same link works for everyone it was ever sent to.
+            function sharePageFilenameFor(waypointId) {
+                return 'share_' + waypointId + '.html';
+            }
+            function sharedFolderBase() {
+                return settings.apiDataUrl.trim().replace(/\/+$/, '');
+            }
+            function sharePagePutUrl(filename) {
+                return sharedFolderBase() + '/shared/' + encodeURIComponent(filename) + '/' +
+                    encodeURIComponent(settings.apiToken.trim());
+            }
+            function sharePagePublicUrl(filename) {
+                return sharedFolderBase() + '/shared/' + encodeURIComponent(filename);
+            }
+
+            // Pure function: given a plain data object (see buildSharePageData below), returns the full
+            // HTML document as a string. Kept separate from any DOM/state reads so it's easy to test with
+            // fixed input. Photo layout: a single photo renders as-is; two or more switch to a 2x2 grid.
+            function renderSharePageHtml(data) {
+                var units = settings.units || 'imperial';
+                var windUnit = units === 'metric' ? 'km/h' : 'mph';
+                var tempUnit = units === 'metric' ? '°C' : '°F';
+                var baroUnit = units === 'metric' ? ' hPa' : '"';
+                var appUrl = data.appUrl;
+                var appHost = appUrl.replace(/^https?:\/\//, '').replace(/\/$/, '');
+
+                var photosHtml = '';
+                if (data.photos && data.photos.length === 1) {
+                    photosHtml = '<img class="photo" src="' + data.photos[0] + '" alt="Catch photo">';
+                } else if (data.photos && data.photos.length > 1) {
+                    photosHtml = '<div class="photos-grid">' + data.photos.map(function (src) {
+                        return '<img class="photo photo-grid-item" src="' + src + '" alt="Catch photo">';
+                    }).join('') + '</div>';
+                }
+
+                var conditionsHtml = '';
+                if (data.weatherBase) {
+                    var b = data.weatherBase;
+                    conditionsHtml = '<div class="conditions">' +
+                        '<div class="chip" style="--c:var(--temp)"><span class="chip-label">TEMP</span><span class="chip-value">' + fTo(units, b.tempF) + tempUnit + '</span></div>' +
+                        '<div class="chip" style="--c:var(--clouds)"><span class="chip-label">CLOUDS</span><span class="chip-value">' + b.cloudsPct + '%</span></div>' +
+                        '<div class="chip" style="--c:var(--wind)"><span class="chip-label">WIND</span><span class="chip-value">' + ktTo(units, b.windSpeedKt) + ' ' + windUnit + ' ' + escapeHtml(b.windDir) + '</span></div>' +
+                        '<div class="chip" style="--c:var(--pressure)"><span class="chip-label">BARO</span><span class="chip-value">' + inHgTo(units, b.baroInHg) + baroUnit + '</span></div>' +
+                        '</div>';
+                }
+
+                var mapsBtnHtml = (typeof data.lat === 'number' && typeof data.lon === 'number') ?
+                    '<a class="maps-btn" href="' + mapsUrlFor(data.lat, data.lon) + '"><i class="fa fa-map-marker"></i> View on Google Maps</a>' : '';
+
+                return '<!DOCTYPE html>\n<html lang="en">\n<head>\n' +
+                    '<meta charset="UTF-8">\n' +
+                    '<title>' + escapeHtml(data.species) + ' — BITEMAP</title>\n' +
+                    '<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+                    '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.0/css/font-awesome.min.css">\n' +
+                    '<style>\n' +
+                    ':root{--bg:#0B1420;--bg2:#122130;--panel:#16283A;--ink:#EAF4F2;--muted:#7C93A0;--line:#233A4A;--wind:#4FA3D1;--temp:#E0954B;--pressure:#3FB68A;--clouds:#94A3B8;}\n' +
+                    '*{box-sizing:border-box;}\n' +
+                    'body{background:var(--bg);color:var(--ink);font-family:Arial, Helvetica, sans-serif;margin:0;}\n' +
+                    'a{color:inherit;}\n' +
+                    '.wrap{max-width:520px;margin:0 auto;}\n' +
+                    '.banner-link{text-decoration:none;display:block;}\n' +
+                    '.banner{background:linear-gradient(135deg, var(--bg) 0%, var(--bg2) 100%);padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;}\n' +
+                    '.banner svg{flex-shrink:0;display:block;}\n' +
+                    '.wordmark{font-weight:900;font-size:22px;letter-spacing:0.5px;line-height:1;margin:0;color:var(--ink);}\n' +
+                    '.subtitle{font-size:9px;letter-spacing:2px;color:var(--muted);margin:3px 0 0 0;font-weight:700;}\n' +
+                    '.photo{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;background:var(--bg2);}\n' +
+                    '.photos-grid{display:grid;grid-template-columns:1fr 1fr;gap:2px;}\n' +
+                    '.photos-grid .photo{aspect-ratio:1/1;}\n' +
+                    '.card{padding:20px 20px 8px;}\n' +
+                    '.title-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:4px;}\n' +
+                    'h1{font-size:24px;margin:0;line-height:1.15;}\n' +
+                    '.length{font-size:16px;color:var(--muted);font-weight:700;white-space:nowrap;}\n' +
+                    '.meta{font-size:13px;color:var(--muted);margin:2px 0 18px;}\n' +
+                    '.meta i{margin-right:5px;color:var(--wind);}\n' +
+                    '.notes{font-size:14.5px;line-height:1.55;color:var(--ink);margin:0 0 20px;}\n' +
+                    '.conditions{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:22px;}\n' +
+                    '.chip{font-family:Consolas,\'Courier New\',monospace;padding:6px 14px;border-radius:14px;border:1.5px solid var(--c);color:var(--c);background:transparent;display:flex;flex-direction:column;align-items:center;gap:1px;line-height:1.15;}\n' +
+                    '.chip-label{font-size:9.5px;font-weight:700;letter-spacing:1px;opacity:.85;}\n' +
+                    '.chip-value{font-size:14px;font-weight:800;}\n' +
+                    '.maps-btn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:13px;border-radius:10px;background:var(--panel);border:1px solid var(--line);color:var(--ink);font-size:14.5px;font-weight:700;text-decoration:none;}\n' +
+                    '.maps-btn i{color:var(--pressure);font-size:16px;}\n' +
+                    '.footer{text-align:center;padding:22px 20px 28px;}\n' +
+                    '.footer a{font-size:11.5px;color:var(--muted);text-decoration:none;border-bottom:1px solid var(--line);padding-bottom:2px;}\n' +
+                    '.footer a:hover{color:var(--ink);border-color:var(--muted);}\n' +
+                    '@media (max-width:480px){\n' +
+                    '  .conditions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}\n' +
+                    '  .chip{padding:10px 8px;border-radius:12px;gap:3px;}\n' +
+                    '  .chip-label{font-size:12px;}\n' +
+                    '  .chip-value{font-size:22px;}\n' +
+                    '}\n' +
+                    '</style>\n</head>\n<body>\n' +
+                    '<div class="wrap">\n' +
+                    '<a class="banner-link" href="' + escapeHtml(appUrl) + '" title="Open BITEMAP">\n' +
+                    '<header class="banner">\n' +
+                    '<svg width="34" height="37" viewBox="0 0 200 220">\n' +
+                    '<defs><linearGradient id="pinGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4FA3D1"/><stop offset="1" stop-color="#3FB68A"/></linearGradient>' +
+                    '<mask id="pinWaveMask"><rect width="200" height="220" fill="white"/><path d="M14,112 C46,90 68,134 100,112 C132,90 154,134 186,112" stroke="black" stroke-width="20" fill="none" stroke-linecap="round"/></mask></defs>' +
+                    '<path d="M100,14 C55,14 22,48 22,90 C22,145 100,206 100,206 C100,206 178,145 178,90 C178,48 145,14 100,14 Z" fill="url(#pinGrad)" mask="url(#pinWaveMask)"/>\n' +
+                    '</svg>\n' +
+                    '<div><p class="wordmark">BITEMAP</p><p class="subtitle">FISHING WAYPOINT TRACKER</p></div>\n' +
+                    '</header>\n</a>\n' +
+                    photosHtml + '\n' +
+                    '<div class="card">\n' +
+                    '<div class="title-row"><h1>' + escapeHtml(data.species) + '</h1>' + (data.lengthIn ? '<span class="length">' + data.lengthIn + '&quot;</span>' : '') + '</div>\n' +
+                    '<div class="meta"><i class="fa fa-clock-o"></i>' + escapeHtml(data.whenStr) + '</div>\n' +
+                    (data.notes ? '<p class="notes">' + escapeHtml(data.notes) + '</p>\n' : '') +
+                    conditionsHtml + '\n' +
+                    mapsBtnHtml + '\n' +
+                    '</div>\n' +
+                    '<div class="footer"><a href="' + escapeHtml(appUrl) + '">Shared from BITEMAP &mdash; ' + escapeHtml(appHost) + '</a></div>\n' +
+                    '</div>\n</body>\n</html>';
+            }
+
+            // Reads whatever's currently in the dialog's fields into the plain data shape renderSharePageHtml
+            // expects -- same "what you see is what gets shared" behavior as buildShareSummary below, so
+            // unsaved edits are reflected without requiring Save first.
+            function buildSharePageData() {
+                if (!waypointDialogState) return null;
+                var species = wpSpeciesInput.value.trim() || 'Fish';
+                var lengthVal = parseFloat(wpLengthInput.value);
+                var lengthIn = isNaN(lengthVal) ? 0 : lengthVal;
+                var when = wpCaughtAtInput.value ? new Date(wpCaughtAtInput.value) : new Date();
+                var whenStr = isNaN(when.getTime()) ? '' : when.toLocaleString(undefined, {
+                    month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit'
+                });
+                var notes = wpNotesInput.value.trim();
+                var photos = (waypointDialogState.photos || [])
+                    .map(function (p) { return bestPhotoSrc(p); })
+                    .filter(function (src) { return !!src; });
+
+                return {
+                    id: waypointDialogState.id,
+                    species: species,
+                    lengthIn: lengthIn,
+                    whenStr: whenStr,
+                    notes: notes,
+                    weatherBase: waypointDialogState.weatherBase,
+                    lat: waypointDialogState.lat,
+                    lon: waypointDialogState.lon,
+                    photos: photos,
+                    appUrl: window.location.href
+                };
+            }
+
+            // Generates the share page for the currently-open (already-saved) waypoint and PUTs it to the
+            // backend. Resolves the public URL on success, null on any failure (no backend configured,
+            // network error, non-2xx response) -- callers treat null as "couldn't get a link this time,"
+            // never as fatal, since the rest of Share still works without it.
+            function pushSharePage() {
+                if (!apiConfigured() || !waypointDialogState || waypointDialogState.mode !== 'edit') {
+                    return Promise.resolve(null);
+                }
+                var data = buildSharePageData();
+                if (!data) return Promise.resolve(null);
+                var filename = sharePageFilenameFor(data.id);
+                var html = renderSharePageHtml(data);
+                return fetch(sharePagePutUrl(filename), {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'text/html' },
+                    body: html
+                }).then(function (res) {
+                    return res.ok ? sharePagePublicUrl(filename) : null;
+                }).catch(function () { return null; });
+            }
+
             // Builds the text summary shared alongside (or instead of) the photo: species/length,
             // catch time, conditions, notes, and a map link to the spot. Reflects whatever is currently
             // in the dialog's fields, so what you see is what gets shared (no need to Save first).
@@ -3810,29 +3960,42 @@
                     }
                 }
 
-                var photos = waypointDialogState.photos;
-                if (!photos.length) {
-                    shareTextOnly();
-                    return;
+                function proceedWithShare() {
+                    var photos = waypointDialogState.photos;
+                    if (!photos.length) {
+                        shareTextOnly();
+                        return;
+                    }
+
+                    Promise.all(photos.map(function (photo, i) {
+                        return dataUrlToFile(bestPhotoSrc(photo), 'bitemap-catch-' + (i + 1) + '.jpg');
+                    })).then(function (files) {
+                        if (navigator.share && navigator.canShare && navigator.canShare({ files: files })) {
+                            navigator.share({ title: summary.title, text: summary.text, files: files }).catch(function (err) {
+                                if (err && err.name === 'AbortError') return;
+                                console.warn('BITEMAP: share with photos failed', err);
+                                shareTextOnly();
+                            });
+                        } else {
+                            // Can't share photo files on this browser — fall back to text-only share/copy so the
+                            // catch details still get through.
+                            shareTextOnly();
+                        }
+                    }).catch(function (err) {
+                        console.warn('BITEMAP: could not prepare photos for sharing', err);
+                        shareTextOnly();
+                    });
                 }
 
-                Promise.all(photos.map(function (photo, i) {
-                    return dataUrlToFile(bestPhotoSrc(photo), 'bitemap-catch-' + (i + 1) + '.jpg');
-                })).then(function (files) {
-                    if (navigator.share && navigator.canShare && navigator.canShare({ files: files })) {
-                        navigator.share({ title: summary.title, text: summary.text, files: files }).catch(function (err) {
-                            if (err && err.name === 'AbortError') return;
-                            console.warn('BITEMAP: share with photos failed', err);
-                            shareTextOnly();
-                        });
-                    } else {
-                        // Can't share photo files on this browser — fall back to text-only share/copy so the
-                        // catch details still get through.
-                        shareTextOnly();
-                    }
-                }).catch(function (err) {
-                    console.warn('BITEMAP: could not prepare photos for sharing', err);
-                    shareTextOnly();
+                // Best-effort: if a backend is configured, publish a rich share page for this catch first and
+                // fold its link into the shared text before opening the share sheet. Never blocks the share on
+                // failure — if the backend's unreachable or not configured, pushSharePage resolves null almost
+                // immediately and sharing proceeds exactly as it did before this feature existed.
+                if (apiConfigured()) setWpShareStatus('Preparing shareable link…');
+                pushSharePage().then(function (url) {
+                    setWpShareStatus('');
+                    if (url) summary.text += '\n' + url;
+                    proceedWithShare();
                 });
             });
 
@@ -4050,24 +4213,6 @@
                 showDataActionsStatus('Replaced with ' + valid.length + ' imported waypoint(s). (Photos don\'t transfer between devices — you\'ll need to re-add those on this one.)');
             });
 
-            resetSettingsLink.addEventListener('click', function (e) {
-                e.preventDefault();
-                if (!window.confirm('Reset Settings (home location, units, map zoom) back to defaults?')) return;
-                settings = Object.assign({}, defaultSettings);
-                saveSettingsToStorage(settings);
-                renderLocationStrip();
-                renderFilterChips();
-                applyFilterBarCollapsedState();
-                plotWaypoints();
-                if (leafletMap) {
-                    var loc = getActiveLocation();
-                    leafletMap.setView([loc.lat, loc.lon], settings.mapZoom);
-                }
-                ensureWeatherFrameLoaded(true);
-                refreshWeatherChips(true);
-                showDataActionsStatus('Settings reset to defaults.');
-            });
-
             // ---------- Init ----------
             renderGeoStatus();
             renderLocationStrip();
@@ -4085,7 +4230,11 @@
                 DEFAULT_LOCATION: DEFAULT_LOCATION,
                 SAMPLE_WAYPOINTS: SAMPLE_WAYPOINTS,
                 getMap: function () { return leafletMap; },
-                plotWaypoints: plotWaypoints
+                plotWaypoints: plotWaypoints,
+                renderSharePageHtml: renderSharePageHtml,
+                sharePageFilenameFor: sharePageFilenameFor,
+                sharePagePutUrl: sharePagePutUrl,
+                sharePagePublicUrl: sharePagePublicUrl
             };
 
         })();
