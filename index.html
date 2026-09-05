@@ -3326,20 +3326,43 @@
                 return !!(settings.apiDataUrl && settings.apiDataUrl.trim() && settings.apiToken && settings.apiToken.trim());
             }
 
-            function photoApiUrl(waypointId, index1based) {
+            // Generic doc-name -> URL builder, shared by photos, settings, and the waypoints list — each
+            // is just its own document type under the same app/token path.
+            function apiUrlFor(type) {
                 var base = settings.apiDataUrl.trim().replace(/\/+$/, '');
-                var type = 'photo_' + waypointId + '_' + index1based;
                 return base + '/data/' + encodeURIComponent(API_APP_NAME) + '/' +
                     encodeURIComponent(settings.apiToken.trim()) + '/' + encodeURIComponent(type);
+            }
+
+            function photoApiUrl(waypointId, index1based) {
+                return apiUrlFor('photo_' + waypointId + '_' + index1based);
+            }
+
+            // Resolves the parsed JSON body, or null on any failure/missing-doc — callers decide what
+            // "missing" means for their own shape (an empty {} for a photo, an empty {} standing in for
+            // "no settings/waypoints doc saved yet" since the API always returns {} for anything absent).
+            function fetchRemoteJson(type) {
+                return fetch(apiUrlFor(type), { method: 'GET' })
+                    .then(function (res) { return res.ok ? res.json() : null; })
+                    .catch(function () { return null; });
+            }
+
+            // Resolves true/false — never rejects, so Promise.all over several of these can't be short-
+            // circuited by one bad slot.
+            function putRemoteJson(type, value) {
+                return fetch(apiUrlFor(type), {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(value)
+                }).then(function (res) { return res.ok; }).catch(function () { return false; });
             }
 
             // Resolves to the photo's data URL string, or null if the slot is empty/unreachable/errored —
             // callers treat all of those identically (fall back to the local thumbnail).
             function fetchRemotePhoto(waypointId, index1based) {
-                return fetch(photoApiUrl(waypointId, index1based), { method: 'GET' })
-                    .then(function (res) { return res.ok ? res.json() : null; })
-                    .then(function (body) { return typeof body === 'string' && body ? body : null; })
-                    .catch(function () { return null; });
+                return fetchRemoteJson('photo_' + waypointId + '_' + index1based).then(function (body) {
+                    return typeof body === 'string' && body ? body : null;
+                });
             }
 
             // Builds a thumbnail from an existing full-size data URL — used only to backfill photos that
@@ -3369,14 +3392,77 @@
                 });
             }
 
-            // Resolves true/false — never rejects, so Promise.all over several of these can't be short-
-            // circuited by one bad slot.
             function putRemotePhoto(waypointId, index1based, dataUrlOrNull) {
-                return fetch(photoApiUrl(waypointId, index1based), {
-                    method: 'PUT',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dataUrlOrNull || {})
-                }).then(function (res) { return res.ok; }).catch(function () { return false; });
+                return putRemoteJson('photo_' + waypointId + '_' + index1based, dataUrlOrNull || {});
+            }
+
+            // ---------- Backend settings + waypoints-list sync ----------
+            // Same optional/additive backend as photos, same last-write-wins full-overwrite model as the
+            // API itself: no merge logic anywhere, whichever device saves most recently wins. Settings and
+            // the waypoints list each live as one document (unlike photos, which are one document each).
+
+            // apiDataUrl/apiToken are themselves credentials, not preferences — they're never sent to, or
+            // accepted from, the backend, so a device's own connection details can never be clobbered by
+            // whatever another device (or a stale/empty server copy) has. Built with Object.assign so the
+            // exclusion is explicit and can't be defeated by a future field added to `settings` without
+            // remembering to strip it here too — `undefined` values are dropped entirely by JSON.stringify.
+            function settingsSyncPayload() {
+                return Object.assign({}, settings, { apiDataUrl: undefined, apiToken: undefined });
+            }
+
+            function pushSettingsToApi() {
+                if (!apiConfigured()) return;
+                putRemoteJson('settings', settingsSyncPayload()).then(function (ok) {
+                    if (!ok) showDataActionsStatus("Couldn't back up settings right now — they'll try again next time you save settings.");
+                });
+            }
+
+            function pushWaypointsToApi() {
+                if (!apiConfigured()) return;
+                putRemoteJson('waypoints', waypoints).then(function (ok) {
+                    if (!ok) showDataActionsStatus("Couldn't back up your catches right now — they'll try again next time you save one.");
+                });
+            }
+
+            // Called once at startup. Local data (already loaded into `settings`/`waypoints` by this
+            // point) renders immediately regardless of the network, so the app never waits on this. If a
+            // remote copy shows up, it wins outright (last-write-wins) and everything already on screen
+            // gets refreshed to match — this is what lets a second device pick up catches/settings saved
+            // elsewhere without ever touching Export/Import.
+            function pullFromApiOnLoad() {
+                if (!apiConfigured()) return;
+
+                fetchRemoteJson('settings').then(function (remote) {
+                    if (!remote || typeof remote !== 'object' || Array.isArray(remote) || Object.keys(remote).length === 0) return;
+                    settings = Object.assign({}, defaultSettings, remote, {
+                        apiDataUrl: settings.apiDataUrl,
+                        apiToken: settings.apiToken
+                    });
+                    saveSettingsToStorage(settings);
+                    renderLocationStrip();
+                    refreshColorSwatchTitles();
+                    renderColorComboList();
+                    renderSpeciesComboList();
+                    renderFilterChips();
+                    applyFilterBarCollapsedState();
+                    plotWaypoints();
+                    if (leafletMap) {
+                        var loc = getActiveLocation();
+                        leafletMap.setView([loc.lat, loc.lon], settings.mapZoom);
+                    }
+                    ensureWeatherFrameLoaded(true);
+                    refreshWeatherChips(true);
+                });
+
+                fetchRemoteJson('waypoints').then(function (remote) {
+                    if (!Array.isArray(remote) || remote.length === 0) return;
+                    waypoints = remote;
+                    saveWaypointsToStorage(waypoints);
+                    pruneOrphanedPhotos(); // any photo whose waypoint didn't survive the swap is now orphaned
+                    plotWaypoints();
+                    renderWaypointsTable();
+                    refreshFilterBarUI();
+                });
             }
 
             // Called after a Save: uploads every photo still holding a local `full` (new, or left over
@@ -3636,6 +3722,7 @@
                 var syncInitialCount = waypointDialogState.initialPhotoCount;
 
                 saveWaypointsToStorage(waypoints);
+                pushWaypointsToApi();
                 closeWaypointDialog();
                 plotWaypoints();
                 if (photoResult && photoResult.quotaFailed) {
@@ -3654,6 +3741,7 @@
                 var priorPhotoCount = waypointDialogState.photos.length;
                 waypoints = waypoints.filter(function (w) { return w.id !== id; });
                 saveWaypointsToStorage(waypoints);
+                pushWaypointsToApi();
                 try { localStorage.removeItem(photoKeyFor(id)); } catch (e) { /* nothing to do */ }
                 try { localStorage.removeItem(photosKeyFor(id)); } catch (e) { /* nothing to do */ }
                 closeWaypointDialog();
@@ -3860,11 +3948,11 @@
                 settings.apiToken = apiTokenInput.value.trim();
 
                 saveSettingsToStorage(settings);
+                pushSettingsToApi();
                 refreshColorSwatchTitles();
                 renderSpeciesComboList();
                 if (wpSpeciesInput.value) updateSpeciesComboButton(wpSpeciesInput.value);
                 renderFilterChips(); // may prune stale filter selections if a label/preset changed underneath them
-                saveSettingsToStorage(settings);
                 plotWaypoints();
                 renderLocationStrip();
                 closeSettings();
@@ -3958,6 +4046,7 @@
                 saveWaypointsToStorage(waypoints);
                 pruneOrphanedPhotos(); // drops any locally-stored photos whose waypoint didn't survive the replace
                 plotWaypoints();
+                pushWaypointsToApi();
                 showDataActionsStatus('Replaced with ' + valid.length + ' imported waypoint(s). (Photos don\'t transfer between devices — you\'ll need to re-add those on this one.)');
             });
 
@@ -3986,6 +4075,7 @@
             setupMap();
             refreshWeatherChips(true);
             requestLocation();
+            pullFromApiOnLoad(); // background — everything above already rendered from local data
 
             // Exposed so the next pieces (map, waypoint list, weather chips) can read location/settings/
             // sample data without re-plumbing this module. Not a public API — just this file's own state.
