@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- BITEMAP_VERSION: v014 (bump only on a STABLE snapshot; keep this line and the
+<!-- BITEMAP_VERSION: v017 (bump only on a STABLE snapshot; keep this line and the
      #versionLabel text below in sync — the snapshot workflow greps this line) -->
 <html lang="en">
 
@@ -361,6 +361,141 @@
             color: var(--ink);
         }
 
+        .filter-bar {
+            margin: 10px 0 4px;
+            border-radius: 10px;
+            border: 1.5px solid var(--line);
+            background: var(--bg2);
+            transition: border-color .15s ease, background .15s ease;
+        }
+
+        .filter-bar-header {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            background: transparent;
+            border: none;
+            color: var(--ink);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .filter-bar-header i.fa-caret-down {
+            transition: transform .15s ease;
+        }
+
+        .filter-bar-header[aria-expanded="false"] i.fa-caret-down {
+            transform: rotate(-90deg);
+        }
+
+        .filter-bar-active-badge {
+            font-size: 10.5px;
+            font-weight: 700;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: var(--temp);
+            color: #1a1207;
+        }
+
+        .filter-bar-content {
+            padding: 0 12px 12px;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .filter-group-label {
+            font-size: 11px;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-right: 2px;
+            flex: none;
+        }
+
+        .filter-chip {
+            font-size: 12.5px;
+            font-weight: 600;
+            padding: 6px 11px;
+            border-radius: 14px;
+            border: 1.5px solid var(--line);
+            color: var(--muted);
+            background: transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .filter-chip-dot {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            flex: none;
+            border: 1px solid rgba(255, 255, 255, .35);
+        }
+
+        .filter-chip.active {
+            background: var(--temp);
+            color: #1a1207;
+            border-color: var(--temp);
+        }
+
+        .filter-chip:hover:not(.active) {
+            border-color: var(--muted);
+            color: var(--ink);
+        }
+
+        .filter-summary {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-top: 8px;
+            border-top: 1px solid var(--line);
+        }
+
+        .filter-summary-text {
+            font-size: 12.5px;
+            color: var(--muted);
+        }
+
+        .filter-bar.filter-active .filter-summary-text {
+            color: var(--temp);
+            font-weight: 700;
+        }
+
+        .filter-reset-btn {
+            font-size: 12px;
+            font-weight: 700;
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1.5px solid var(--temp);
+            color: var(--temp);
+            background: transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            flex: none;
+        }
+
+        .filter-reset-btn:hover {
+            background: var(--temp);
+            color: #1a1207;
+        }
+
         .wp-photo-strip {
             display: flex;
             gap: 8px;
@@ -408,6 +543,33 @@
 
         .wp-photo-thumb-remove:hover {
             opacity: .85;
+        }
+
+        .wp-photo-thumb-badge {
+            position: absolute;
+            bottom: -6px;
+            right: -6px;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: var(--muted);
+            color: #0F1319;
+            border: 1.5px solid var(--panel);
+            font-size: 10px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .wp-photo-thumb-badge-pending {
+            background: var(--temp);
+        }
+
+        .wp-photo-sync-status {
+            font-size: 12px;
+            color: var(--muted);
+            margin: -2px 0 8px;
         }
 
         .geo-status {
@@ -486,6 +648,106 @@
 
         .wp-color-swatch.active {
             border-color: var(--ink);
+        }
+
+        .wp-color-combo {
+            position: relative;
+            margin-bottom: 6px;
+        }
+
+        .wp-color-combo-btn {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            padding: 9px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--line);
+            background: var(--bg2);
+            color: var(--ink);
+            font-size: 15px;
+            cursor: pointer;
+            box-sizing: border-box;
+        }
+
+        .wp-color-combo-btn i.fa-caret-down {
+            margin-left: auto;
+            opacity: .7;
+        }
+
+        .wp-color-combo-label {
+            flex: 1;
+            text-align: left;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .wp-color-swatch-sm {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 1.5px solid var(--line);
+            flex: none;
+            box-sizing: border-box;
+        }
+
+        .wp-color-combo-list {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: var(--bg2);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            z-index: 30;
+            max-height: 280px;
+            overflow-y: auto;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, .4);
+        }
+
+        .wp-color-combo-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 11px 12px;
+            cursor: pointer;
+        }
+
+        .wp-color-combo-row+.wp-color-combo-row {
+            border-top: 1px solid var(--line);
+        }
+
+        .wp-color-combo-row:hover,
+        .wp-color-combo-row.active {
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .color-label-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .color-label-row .wp-color-swatch {
+            flex: none;
+            cursor: default;
+        }
+
+        .color-label-row input[type="text"] {
+            flex: 1;
+        }
+
+        .wp-color-dot {
+            display: inline-block;
+            width: 11px;
+            height: 11px;
+            border-radius: 50%;
+            border: 1.5px solid var(--line);
+            vertical-align: middle;
+            margin-right: 7px;
+            flex: none;
         }
 
         .footer-links {
@@ -1014,6 +1276,32 @@
                     style="min-width:28px; text-align:right; font-family:Consolas,'Courier New',monospace; color:var(--ink);">13</span>
             </div>
 
+            <p class="settings-section-label" style="margin-top:22px;">Pin color labels</p>
+            <p class="settings-hint">
+                Give each pin color a meaning (e.g. "Spots I like", "Reference points") so it's easy to
+                remember what you're picking when you set a waypoint's color.
+            </p>
+            <div id="colorLabelRows"></div>
+
+            <p class="settings-section-label" style="margin-top:22px;">Species presets</p>
+            <p class="settings-hint">
+                The 10 species/tags you can pick from in the waypoint dialog. Rename any of them — new
+                picks use the new wording, existing catches keep whatever text they were saved with.
+            </p>
+            <div id="speciesPresetRows"></div>
+
+            <p class="settings-section-label" style="margin-top:22px;">Backend sync (photos)</p>
+            <p class="settings-hint">
+                Optional. Lets full-size catch photos back up to your own storage server instead of
+                staying only on this device. Leave both blank and BITEMAP works exactly as it does today,
+                fully local. Stored only on this device — never included if BITEMAP ever syncs settings
+                across devices, since these are credentials, not preferences.
+            </p>
+            <input type="text" class="edit-select" id="apiDataUrlInput" placeholder="Data URL (root of API)"
+                autocapitalize="off" autocorrect="off" spellcheck="false">
+            <input type="text" class="edit-select" id="apiTokenInput" placeholder="Token" autocapitalize="off"
+                autocorrect="off" spellcheck="false">
+
             <div class="modal-actions">
                 <button class="btn-cancel" id="settingsCancel">Cancel</button>
                 <button class="btn-save" id="settingsSave">Save</button>
@@ -1030,7 +1318,15 @@
             </div>
 
             <p class="settings-section-label">Species</p>
-            <input type="text" class="edit-select" id="wpSpeciesInput" placeholder="Fish">
+            <div class="wp-color-combo" id="wpSpeciesCombo">
+                <button type="button" class="wp-color-combo-btn" id="wpSpeciesComboBtn" aria-haspopup="listbox"
+                    aria-expanded="false">
+                    <span class="wp-color-combo-label" id="wpSpeciesComboLabel">Fish</span>
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="wp-color-combo-list" id="wpSpeciesComboList" role="listbox" hidden></div>
+            </div>
+            <input type="hidden" id="wpSpeciesInput">
 
             <p class="settings-section-label">Length (in)</p>
             <input type="number" step="any" class="edit-select" id="wpLengthInput" placeholder="0">
@@ -1043,11 +1339,17 @@
                 placeholder="Optional"></textarea>
 
             <p class="settings-section-label">Pin color</p>
-            <div style="display:flex; gap:10px; align-items:center; margin-bottom:12px;">
-                <input type="color" id="wpColorInput"
-                    style="width:44px; height:36px; padding:2px; border-radius:6px; border:1px solid var(--line); background:var(--bg2); cursor:pointer;">
-                <div class="wp-color-presets" id="wpColorPresets" style="display:flex; gap:8px;"></div>
+            <div class="wp-color-combo" id="wpColorCombo">
+                <button type="button" class="wp-color-combo-btn" id="wpColorComboBtn" aria-haspopup="listbox"
+                    aria-expanded="false">
+                    <span class="wp-color-swatch-sm" id="wpColorComboSwatch"></span>
+                    <span class="wp-color-combo-label" id="wpColorComboLabel">Green</span>
+                    <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="wp-color-combo-list" id="wpColorComboList" role="listbox" hidden></div>
             </div>
+            <input type="color" id="wpColorInput" style="display:none;">
+            <div style="margin-bottom:12px;"></div>
 
             <p class="settings-section-label">Photos</p>
             <!-- Two separate inputs, two separate buttons: "capture" forces the camera open directly
@@ -1064,6 +1366,7 @@
                     aria-label="Choose from your photo library"><i class="fa fa-picture-o"></i></button>
             </div>
             <p class="settings-hint" id="wpPhotoStatus" style="display:none;"></p>
+            <p class="wp-photo-sync-status" id="wpPhotoSyncStatus" style="display:none;"></p>
 
             <p class="settings-section-label">Conditions at this spot</p>
             <div class="wp-conditions" id="wpConditions">—</div>
@@ -1182,6 +1485,23 @@
             <i class="fa fa-circle-o-notch fa-spin"></i>
             <span id="mapStatusText">Loading map…</span>
         </div>
+        <div class="filter-bar" id="filterBar">
+            <button type="button" class="filter-bar-header" id="filterBarHeader" aria-expanded="true">
+                <i class="fa fa-caret-down" id="filterBarCaret"></i>
+                <span>Filters</span>
+                <span class="filter-bar-active-badge" id="filterBarActiveBadge" style="display:none;">active</span>
+            </button>
+            <div class="filter-bar-content" id="filterBarContent">
+                <div class="filter-group" id="filterColorGroup"></div>
+                <div class="filter-group" id="filterSpeciesGroup"></div>
+                <div class="filter-summary">
+                    <span class="filter-summary-text" id="filterSummaryText"></span>
+                    <button type="button" class="filter-reset-btn" id="filterResetBtn" style="display:none;">
+                        <i class="fa fa-times-circle"></i> Reset filters
+                    </button>
+                </div>
+            </div>
+        </div>
         <div class="panel map-panel" id="waypointsPanel">
             <div id="map"></div>
         </div>
@@ -1222,7 +1542,7 @@
 
     <div id="versionLabel"
         style="text-align:center; padding:18px 0 26px; font-size:11px; letter-spacing:1px; color:var(--muted); font-family:Consolas,'Courier New',monospace;">
-        v014</div>
+        v017</div>
 
     <script>
         (function () {
@@ -1235,14 +1555,36 @@
             var DEFAULT_LOCATION = { label: 'Almont, MI 48001 (default)', lat: 42.9202, lon: -83.0432 };
 
             var DEFAULT_PIN_COLOR = '#3FB68A';
-            var PIN_COLOR_PRESETS = ['#3FB68A', '#4FA3D1', '#E0954B', '#C96A6A', '#9B7FD4', '#EAF4F2'];
+            var PIN_COLOR_PRESETS = ['#3FB68A', '#4FA3D1', '#E0954B', '#FF0000', '#9B7FD4', '#EAF4F2', '#FF00AE', '#FFDD00', '#992E00'];
+
+            // Colors are stored on waypoints in whatever case they came from (the native <input type=color>
+            // lowercases them), so lookups always normalize to uppercase to match how they're keyed in
+            // settings.colorLabels.
+            function colorLabelFor(hex) {
+                if (!hex) return '';
+                return (settings.colorLabels && settings.colorLabels[hex.toUpperCase()]) || '';
+            }
+
+            // Species presets are a fixed list of 10 slots, edited by their plain text (unlike pin colors,
+            // there's no separate identity/label split — the text itself IS the value, and it's what gets
+            // stored directly on a waypoint). Renaming a slot later never rewrites waypoints that already
+            // saved the old text, only affects picks made after the rename.
+            var DEFAULT_SPECIES_PRESETS = ['Fish', 'Nav', 'Beer', 'Sturgeon', 'Small Mouth', 'Large Mouth', 'Perch', 'Salmon', 'Walleye', 'Bluegill'];
 
             var defaultSettings = {
                 homeLabel: '',
                 homeLat: null,
                 homeLon: null,
                 units: 'imperial',
-                mapZoom: 13
+                mapZoom: 13,
+                colorLabels: { '#FFDD00': 'POI', '#992E00': 'Restaurants' }, // keyed by uppercase hex from PIN_COLOR_PRESETS, e.g. { "#E0954B": "Spots I like" }
+                speciesPresets: DEFAULT_SPECIES_PRESETS.slice(),
+                activeFilters: { colors: [], species: [] }, // never mutated in place — always replaced wholesale, so a "Reset settings" (which reuses this same object) can't inherit stale filter state
+                filterBarCollapsed: false,
+                // Backend sync (photos). Deliberately local-only — never included if/when a settings-sync
+                // feature exists later, since these are credentials, not preferences to carry across devices.
+                apiDataUrl: '',
+                apiToken: ''
             };
 
             function loadSettings() {
@@ -1377,6 +1719,10 @@
             var homeLabelInput = document.getElementById('homeLabelInput');
             var homeLatInput = document.getElementById('homeLatInput');
             var homeLonInput = document.getElementById('homeLonInput');
+            var colorLabelRows = document.getElementById('colorLabelRows');
+            var speciesPresetRows = document.getElementById('speciesPresetRows');
+            var apiDataUrlInput = document.getElementById('apiDataUrlInput');
+            var apiTokenInput = document.getElementById('apiTokenInput');
             var fillFromCurrentBtn = document.getElementById('fillFromCurrentBtn');
             var unitsToggle = document.getElementById('unitsToggle');
             var mapZoomInput = document.getElementById('mapZoomInput');
@@ -1393,18 +1739,27 @@
             var waypointShare = document.getElementById('waypointShare');
             var wpShareStatus = document.getElementById('wpShareStatus');
             var wpSpeciesInput = document.getElementById('wpSpeciesInput');
+            var wpSpeciesCombo = document.getElementById('wpSpeciesCombo');
+            var wpSpeciesComboBtn = document.getElementById('wpSpeciesComboBtn');
+            var wpSpeciesComboLabel = document.getElementById('wpSpeciesComboLabel');
+            var wpSpeciesComboList = document.getElementById('wpSpeciesComboList');
             var wpLengthInput = document.getElementById('wpLengthInput');
             var wpCaughtAtInput = document.getElementById('wpCaughtAtInput');
             var wpNotesInput = document.getElementById('wpNotesInput');
             var wpConditions = document.getElementById('wpConditions');
             var wpColorInput = document.getElementById('wpColorInput');
-            var wpColorPresets = document.getElementById('wpColorPresets');
+            var wpColorCombo = document.getElementById('wpColorCombo');
+            var wpColorComboBtn = document.getElementById('wpColorComboBtn');
+            var wpColorComboSwatch = document.getElementById('wpColorComboSwatch');
+            var wpColorComboLabel = document.getElementById('wpColorComboLabel');
+            var wpColorComboList = document.getElementById('wpColorComboList');
             var wpPhotoInput = document.getElementById('wpPhotoInput');
             var wpPhotoGalleryInput = document.getElementById('wpPhotoGalleryInput');
             var wpPhotoStrip = document.getElementById('wpPhotoStrip');
             var wpPhotoAddBtn = document.getElementById('wpPhotoAddBtn');
             var wpPhotoGalleryBtn = document.getElementById('wpPhotoGalleryBtn');
             var wpPhotoStatus = document.getElementById('wpPhotoStatus');
+            var wpPhotoSyncStatus = document.getElementById('wpPhotoSyncStatus');
             var exportWaypointsLink = document.getElementById('exportWaypointsLink');
             var importWaypointsLink = document.getElementById('importWaypointsLink');
             var resetSettingsLink = document.getElementById('resetSettingsLink');
@@ -1422,6 +1777,14 @@
             var geoStatusText = document.getElementById('geoStatusText');
             var geoRetryBtn = document.getElementById('geoRetryBtn');
             var mapStatus = document.getElementById('mapStatus');
+            var filterBar = document.getElementById('filterBar');
+            var filterBarHeader = document.getElementById('filterBarHeader');
+            var filterBarActiveBadge = document.getElementById('filterBarActiveBadge');
+            var filterBarContent = document.getElementById('filterBarContent');
+            var filterColorGroup = document.getElementById('filterColorGroup');
+            var filterSpeciesGroup = document.getElementById('filterSpeciesGroup');
+            var filterSummaryText = document.getElementById('filterSummaryText');
+            var filterResetBtn = document.getElementById('filterResetBtn');
             var tabWaypointsBtn = document.getElementById('tabWaypointsBtn');
             var tabTableBtn = document.getElementById('tabTableBtn');
             var tabWeatherBtn = document.getElementById('tabWeatherBtn');
@@ -1570,11 +1933,12 @@
             function sizeMapArea() {
                 if (!waypointsPanel || !versionLabel) return;
                 var panelTop = waypointsPanel.getBoundingClientRect().top;
-                // Whatever sits below the panel (footer links, status line, version label, and their
-                // margins) stays the same height regardless of the panel's own height, since it's normal
-                // document flow — so this gap is exactly the space to reserve.
-                var bottomReserved = versionLabel.getBoundingClientRect().bottom - waypointsPanel.getBoundingClientRect().bottom;
-                var available = window.innerHeight - panelTop - bottomReserved;
+                // No longer reserving room for the full footer (links/status/version) below the panel — the
+                // map, table, and weather frame fill nearly all the rest of the viewport, and the footer sits
+                // below the fold where a scroll reaches it. A small fixed buffer stays so the panel doesn't
+                // end up flush against the bottom edge of the screen, which reads as a layout glitch.
+                var BOTTOM_BUFFER = 36;
+                var available = window.innerHeight - panelTop - BOTTOM_BUFFER;
                 var height = Math.max(280, Math.round(available));
                 mapEl.style.height = height + 'px';
                 weatherFrame.style.height = height + 'px';
@@ -1702,16 +2066,185 @@
                     (wp.notes ? '<p class="wp-popup-notes">' + escapeHtml(wp.notes) + '</p>' : '');
             }
 
+            // ---------- Filters ----------
+            // Combined filter across pin color and species: OR within a group (any selected color, any
+            // selected species), AND between groups (both have to match if both groups have a selection).
+            // A color/species with no current label/preset match folds into a single "Other" bucket rather
+            // than getting its own chip — keeps the bar from growing unbounded as colors/species change.
+            var FILTER_OTHER = '__OTHER__';
+
+            function matchesActiveFilters(wp) {
+                var filters = settings.activeFilters;
+                if (filters.colors.length) {
+                    var hex = (wp.color || DEFAULT_PIN_COLOR).toUpperCase();
+                    var bucket = colorLabelFor(hex) ? hex : FILTER_OTHER;
+                    if (filters.colors.indexOf(bucket) === -1) return false;
+                }
+                if (filters.species.length) {
+                    var sp = wp.species || 'Fish';
+                    var bucket2 = settings.speciesPresets.indexOf(sp) !== -1 ? sp : FILTER_OTHER;
+                    if (filters.species.indexOf(bucket2) === -1) return false;
+                }
+                return true;
+            }
+
+            function getFilteredWaypoints() {
+                return waypoints.filter(matchesActiveFilters);
+            }
+
+            function isAnyFilterActive() {
+                return settings.activeFilters.colors.length > 0 || settings.activeFilters.species.length > 0;
+            }
+
+            function toggleFilterValue(list, value) {
+                var idx = list.indexOf(value);
+                if (idx === -1) return list.concat([value]);
+                return list.slice(0, idx).concat(list.slice(idx + 1));
+            }
+
+            function buildFilterChip(value, text, dotColor) {
+                var chip = document.createElement('button');
+                chip.type = 'button';
+                chip.className = 'filter-chip';
+                chip.dataset.value = value;
+                if (dotColor) {
+                    var dot = document.createElement('span');
+                    dot.className = 'filter-chip-dot';
+                    dot.style.background = dotColor;
+                    chip.appendChild(dot);
+                }
+                var lbl = document.createElement('span');
+                lbl.textContent = text;
+                chip.appendChild(lbl);
+                return chip;
+            }
+
+            // Rebuilt whenever the underlying color labels or species presets change (Settings Save), so
+            // the chip set always reflects what's actually nameable right now.
+            // If a color's label is cleared or a species preset is renamed after being actively selected as
+            // a filter, that stale value would otherwise linger invisibly in activeFilters (no chip to show
+            // it, but still silently restricting results). Drop anything that no longer maps to a real chip.
+            function pruneActiveFilters() {
+                var validColors = PIN_COLOR_PRESETS.filter(function (hex) { return !!colorLabelFor(hex); })
+                    .map(function (hex) { return hex.toUpperCase(); });
+                validColors.push(FILTER_OTHER);
+                var validSpecies = settings.speciesPresets.concat([FILTER_OTHER]);
+                settings.activeFilters = {
+                    colors: settings.activeFilters.colors.filter(function (v) { return validColors.indexOf(v) !== -1; }),
+                    species: settings.activeFilters.species.filter(function (v) { return validSpecies.indexOf(v) !== -1; })
+                };
+            }
+
+            function renderFilterChips() {
+                pruneActiveFilters();
+                filterColorGroup.innerHTML = '';
+                var colorGroupLabel = document.createElement('span');
+                colorGroupLabel.className = 'filter-group-label';
+                colorGroupLabel.textContent = 'Color';
+                filterColorGroup.appendChild(colorGroupLabel);
+                PIN_COLOR_PRESETS.forEach(function (hex) {
+                    var label = colorLabelFor(hex);
+                    if (!label) return; // unlabeled colors fold into the Other chip instead of getting their own
+                    filterColorGroup.appendChild(buildFilterChip(hex.toUpperCase(), label, hex));
+                });
+                filterColorGroup.appendChild(buildFilterChip(FILTER_OTHER, 'Other', null));
+
+                filterSpeciesGroup.innerHTML = '';
+                var speciesGroupLabel = document.createElement('span');
+                speciesGroupLabel.className = 'filter-group-label';
+                speciesGroupLabel.textContent = 'Species';
+                filterSpeciesGroup.appendChild(speciesGroupLabel);
+                settings.speciesPresets.forEach(function (name) {
+                    filterSpeciesGroup.appendChild(buildFilterChip(name, name, null));
+                });
+                filterSpeciesGroup.appendChild(buildFilterChip(FILTER_OTHER, 'Other', null));
+
+                refreshFilterBarUI();
+            }
+
+            function applyFilterBarCollapsedState() {
+                var collapsed = !!settings.filterBarCollapsed;
+                filterBarContent.style.display = collapsed ? 'none' : '';
+                filterBarHeader.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+            }
+
+            filterBarHeader.addEventListener('click', function () {
+                settings.filterBarCollapsed = !settings.filterBarCollapsed;
+                saveSettingsToStorage(settings);
+                applyFilterBarCollapsedState();
+            });
+
+            applyFilterBarCollapsedState();
+
+            function refreshFilterBarUI() {
+                var active = isAnyFilterActive();
+                filterBar.classList.toggle('filter-active', active);
+                filterResetBtn.style.display = active ? '' : 'none';
+                filterBarActiveBadge.style.display = active ? '' : 'none';
+
+                var total = waypoints.length;
+                if (total === 0) {
+                    filterSummaryText.textContent = '';
+                } else if (active) {
+                    var shown = getFilteredWaypoints().length;
+                    filterSummaryText.textContent = 'Showing ' + shown + ' of ' + total + ' waypoint' + (total === 1 ? '' : 's') + ' — filtered';
+                } else {
+                    filterSummaryText.textContent = total + ' waypoint' + (total === 1 ? '' : 's');
+                }
+
+                filterColorGroup.querySelectorAll('.filter-chip').forEach(function (chip) {
+                    chip.classList.toggle('active', settings.activeFilters.colors.indexOf(chip.dataset.value) !== -1);
+                });
+                filterSpeciesGroup.querySelectorAll('.filter-chip').forEach(function (chip) {
+                    chip.classList.toggle('active', settings.activeFilters.species.indexOf(chip.dataset.value) !== -1);
+                });
+            }
+
+            function onFiltersChanged() {
+                saveSettingsToStorage(settings);
+                refreshFilterBarUI();
+                plotWaypoints();
+            }
+
+            filterColorGroup.addEventListener('click', function (e) {
+                var chip = e.target.closest('.filter-chip');
+                if (!chip) return;
+                settings.activeFilters = {
+                    colors: toggleFilterValue(settings.activeFilters.colors, chip.dataset.value),
+                    species: settings.activeFilters.species
+                };
+                onFiltersChanged();
+            });
+
+            filterSpeciesGroup.addEventListener('click', function (e) {
+                var chip = e.target.closest('.filter-chip');
+                if (!chip) return;
+                settings.activeFilters = {
+                    colors: settings.activeFilters.colors,
+                    species: toggleFilterValue(settings.activeFilters.species, chip.dataset.value)
+                };
+                onFiltersChanged();
+            });
+
+            filterResetBtn.addEventListener('click', function () {
+                settings.activeFilters = { colors: [], species: [] };
+                onFiltersChanged();
+            });
+
+            renderFilterChips();
+
             function plotWaypoints() {
                 renderWaypointsTable(); // keeps the Log tab in sync with the map, whether or not it's visible right now
+                refreshFilterBarUI(); // waypoint count/filter match count can change independent of a filter click too (add/edit/delete)
                 if (!leafletMap) return;
                 waypointMarkers.forEach(function (m) { leafletMap.removeLayer(m); });
                 waypointMarkers = [];
 
                 // Sample data only shows until you add your first real waypoint — after that, real data
-                // (stored in localStorage until the backend exists) fully replaces the placeholders.
+                // (stored in localStorage until the backend exists) fully replaces the placeholders, filtered
+                // down by whatever's currently selected in the filter bar.
                 var showingSamples = waypoints.length === 0;
-                var list = showingSamples ? SAMPLE_WAYPOINTS : waypoints;
+                var list = showingSamples ? SAMPLE_WAYPOINTS : getFilteredWaypoints();
 
                 list.forEach(function (wp) {
                     var marker = L.circleMarker([wp.lat, wp.lon], {
@@ -1745,13 +2278,23 @@
                 if (waypoints.length === 0) {
                     waypointsTableBody.innerHTML = '';
                     waypointsTable.style.display = 'none';
+                    waypointsTableEmpty.textContent = 'No catches logged yet — tap the map or the pin button in the header to add your first one.';
+                    waypointsTableEmpty.style.display = '';
+                    return;
+                }
+
+                var filteredWaypoints = getFilteredWaypoints();
+                if (filteredWaypoints.length === 0) {
+                    waypointsTableBody.innerHTML = '';
+                    waypointsTable.style.display = 'none';
+                    waypointsTableEmpty.textContent = 'No catches match the current filters.';
                     waypointsTableEmpty.style.display = '';
                     return;
                 }
                 waypointsTable.style.display = '';
                 waypointsTableEmpty.style.display = 'none';
 
-                var sorted = waypoints.slice().sort(function (a, b) {
+                var sorted = filteredWaypoints.slice().sort(function (a, b) {
                     return new Date(b.caughtAt).getTime() - new Date(a.caughtAt).getTime();
                 });
 
@@ -1761,6 +2304,9 @@
                         month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
                     });
                     var lengthStr = wp.lengthIn ? wp.lengthIn + '"' : '—';
+                    var wpColor = wp.color || DEFAULT_PIN_COLOR;
+                    var wpColorLabel = colorLabelFor(wpColor) || 'No label set';
+                    var colorDot = '<span class="wp-color-dot" style="background:' + escapeHtml(wpColor) + ';" title="' + escapeHtml(wpColorLabel) + '"></span>';
                     var photoCount = wp.photoCount != null ? wp.photoCount : (wp.hasPhoto ? 1 : 0);
                     var icons = '' +
                         (photoCount > 0 ? '<i class="fa fa-camera" title="Has ' + photoCount + ' photo' + (photoCount > 1 ? 's' : '') + '"></i>' +
@@ -1769,7 +2315,7 @@
                     return '' +
                         '<tr data-id="' + escapeHtml(wp.id) + '">' +
                         '<td class="wp-row-date">' + escapeHtml(whenStr) + '</td>' +
-                        '<td class="wp-row-species">' + escapeHtml(wp.species || 'Fish') + '</td>' +
+                        '<td class="wp-row-species">' + colorDot + escapeHtml(wp.species || 'Fish') + '</td>' +
                         '<td>' + lengthStr + '</td>' +
                         '<td class="wp-row-icons">' + icons + '</td>' +
                         '<td class="wp-row-locate">' +
@@ -1876,6 +2422,7 @@
                 weatherPanel.style.display = showingWeather ? '' : 'none';
                 weatherForecastPanel.style.display = showingWeather ? '' : 'none';
                 mapStatus.style.display = showingWaypoints ? '' : 'none';
+                filterBar.style.display = showingWeather ? 'none' : '';
 
                 if (showingWaypoints) {
                     // Leaflet miscalculates its size if it was hidden (display:none) when a resize/tile
@@ -2077,30 +2624,179 @@
                     'T' + pad(date.getHours()) + ':' + pad(date.getMinutes());
             }
 
-            // Preset swatches built once — clicking one just sets the native color input's value, so
-            // the color input stays the single source of truth for whatever color is currently picked.
-            PIN_COLOR_PRESETS.forEach(function (hex) {
-                var btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'wp-color-swatch';
-                btn.style.background = hex;
-                btn.dataset.color = hex;
-                btn.title = hex;
-                btn.addEventListener('click', function () { setWpColor(hex); });
-                wpColorPresets.appendChild(btn);
+            // Pin color picker: a closed-by-default combo box (button showing the current swatch + label,
+            // with a dropdown list of all presets plus a "Custom…" row) so the whole picker takes one line
+            // instead of a permanently-visible row/list of swatches. The hidden native <input type="color">
+            // stays the single source of truth for whatever color is currently picked — the combo UI is
+            // just a view onto it, including for a fully custom color chosen via "Custom…".
+            function colorDisplayName(hex) {
+                var label = colorLabelFor(hex);
+                return label || hex.toUpperCase();
+            }
+
+            function renderColorComboList() {
+                wpColorComboList.innerHTML = '';
+                PIN_COLOR_PRESETS.forEach(function (hex) {
+                    var row = document.createElement('div');
+                    row.className = 'wp-color-combo-row';
+                    row.dataset.color = hex;
+                    row.setAttribute('role', 'option');
+                    var sw = document.createElement('span');
+                    sw.className = 'wp-color-swatch-sm';
+                    sw.style.background = hex;
+                    var lbl = document.createElement('span');
+                    lbl.className = 'wp-color-combo-label';
+                    lbl.textContent = colorDisplayName(hex);
+                    row.appendChild(sw);
+                    row.appendChild(lbl);
+                    row.addEventListener('click', function () {
+                        setWpColor(hex);
+                        closeColorCombo();
+                    });
+                    wpColorComboList.appendChild(row);
+                });
+            }
+            renderColorComboList();
+
+            function openColorCombo() {
+                wpColorComboList.hidden = false;
+                wpColorComboBtn.setAttribute('aria-expanded', 'true');
+            }
+            function closeColorCombo() {
+                wpColorComboList.hidden = true;
+                wpColorComboBtn.setAttribute('aria-expanded', 'false');
+            }
+            wpColorComboBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (wpColorComboList.hidden) openColorCombo(); else closeColorCombo();
             });
+            document.addEventListener('click', function (e) {
+                if (!wpColorComboList.hidden && !wpColorCombo.contains(e.target)) closeColorCombo();
+            });
+
+            // Settings modal: one row per preset color, each with a static swatch (not clickable — this
+            // is a naming UI, not a picker) and a text input bound to that hex's label. Built once; values
+            // are populated/read from settings.colorLabels whenever Settings opens/saves.
+            var colorLabelInputs = {};
+            PIN_COLOR_PRESETS.forEach(function (hex) {
+                var row = document.createElement('div');
+                row.className = 'color-label-row';
+
+                var swatch = document.createElement('span');
+                swatch.className = 'wp-color-swatch';
+                swatch.style.background = hex;
+
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'edit-select';
+                input.placeholder = 'Label for this color (optional)';
+                input.maxLength = 40;
+                input.dataset.color = hex;
+
+                row.appendChild(swatch);
+                row.appendChild(input);
+                colorLabelRows.appendChild(row);
+                colorLabelInputs[hex] = input;
+            });
+
+            function updateColorComboButton(hex) {
+                wpColorComboSwatch.style.background = hex;
+                wpColorComboLabel.textContent = colorDisplayName(hex);
+                var rows = wpColorComboList.querySelectorAll('.wp-color-combo-row[data-color]');
+                rows.forEach(function (row) {
+                    row.classList.toggle('active', row.dataset.color.toLowerCase() === hex.toLowerCase());
+                });
+            }
+
+            // Called after Settings changes any color's label, so the combo (button + open rows) reflects
+            // the new names immediately without needing to reopen the waypoint dialog.
+            function refreshColorSwatchTitles() {
+                var rows = wpColorComboList.querySelectorAll('.wp-color-combo-row[data-color]');
+                rows.forEach(function (row) {
+                    row.querySelector('.wp-color-combo-label').textContent = colorDisplayName(row.dataset.color);
+                });
+                if (wpColorInput.value) updateColorComboButton(wpColorInput.value);
+            }
 
             function setWpColor(hex) {
                 wpColorInput.value = hex;
-                var swatches = wpColorPresets.querySelectorAll('.wp-color-swatch');
-                swatches.forEach(function (sw) {
-                    sw.classList.toggle('active', sw.dataset.color.toLowerCase() === hex.toLowerCase());
-                });
+                updateColorComboButton(hex);
             }
 
             wpColorInput.addEventListener('input', function () {
                 setWpColor(wpColorInput.value);
             });
+
+            // Settings modal: one row per species preset slot, in order — plain text inputs (no swatch,
+            // since there's nothing to swatch). Index-based rather than keyed by value, since two slots
+            // could in theory hold the same text momentarily while editing.
+            var speciesPresetInputs = [];
+            settings.speciesPresets.forEach(function (name, idx) {
+                var row = document.createElement('div');
+                row.className = 'color-label-row';
+
+                var input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'edit-select';
+                input.placeholder = 'Species/tag name';
+                input.maxLength = 30;
+                input.dataset.index = idx;
+
+                row.appendChild(input);
+                speciesPresetRows.appendChild(row);
+                speciesPresetInputs.push(input);
+            });
+
+            // Species combo: same closed-by-default dropdown pattern as pin color, but each row is just
+            // plain text (the preset's text IS the value — no separate label lookup) and there's no swatch.
+            function renderSpeciesComboList() {
+                wpSpeciesComboList.innerHTML = '';
+                settings.speciesPresets.forEach(function (name) {
+                    var row = document.createElement('div');
+                    row.className = 'wp-color-combo-row';
+                    row.dataset.species = name;
+                    row.setAttribute('role', 'option');
+                    var lbl = document.createElement('span');
+                    lbl.className = 'wp-color-combo-label';
+                    lbl.textContent = name;
+                    row.appendChild(lbl);
+                    row.addEventListener('click', function () {
+                        setWpSpecies(name);
+                        closeSpeciesCombo();
+                    });
+                    wpSpeciesComboList.appendChild(row);
+                });
+            }
+            renderSpeciesComboList();
+
+            function openSpeciesCombo() {
+                wpSpeciesComboList.hidden = false;
+                wpSpeciesComboBtn.setAttribute('aria-expanded', 'true');
+            }
+            function closeSpeciesCombo() {
+                wpSpeciesComboList.hidden = true;
+                wpSpeciesComboBtn.setAttribute('aria-expanded', 'false');
+            }
+            wpSpeciesComboBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                if (wpSpeciesComboList.hidden) openSpeciesCombo(); else closeSpeciesCombo();
+            });
+            document.addEventListener('click', function (e) {
+                if (!wpSpeciesComboList.hidden && !wpSpeciesCombo.contains(e.target)) closeSpeciesCombo();
+            });
+
+            function updateSpeciesComboButton(name) {
+                wpSpeciesComboLabel.textContent = name;
+                var rows = wpSpeciesComboList.querySelectorAll('.wp-color-combo-row[data-species]');
+                rows.forEach(function (row) {
+                    row.classList.toggle('active', row.dataset.species === name);
+                });
+            }
+
+            function setWpSpecies(name) {
+                wpSpeciesInput.value = name;
+                updateSpeciesComboButton(name);
+            }
 
             // ---------- Photo storage ----------
             // Photos never live inside a waypoint object or the main waypoints list — each one is
@@ -2118,6 +2814,13 @@
             var PHOTO_MAX_DIMENSION = 1000;
             var PHOTO_JPEG_QUALITY = 0.72;
             var PHOTO_MAX_COUNT = 4;
+            // A small always-kept-locally fallback image — separate from the full reduced photo, which
+            // gets trimmed out of local storage once the backend confirms it has a copy. The thumbnail is
+            // what's shown if that backend can't be reached (e.g. offline on the water) when reopening an
+            // already-synced catch.
+            var THUMB_MAX_DIMENSION = 200;
+            var THUMB_JPEG_QUALITY = 0.5;
+            var API_APP_NAME = 'bitemap';
 
             function photoKeyFor(id) { return PHOTO_KEY_PREFIX + id; }
             function photosKeyFor(id) { return PHOTOS_KEY_PREFIX + id; }
@@ -2131,20 +2834,37 @@
                 }
             }
 
-            // Returns every photo for a waypoint, oldest first, from whichever storage format it's
-            // currently in.
+            // Returns every photo for a waypoint, oldest first, as { full?, thumb? } objects, from
+            // whichever storage format it's currently in. `full` present means "not yet confirmed synced
+            // to the backend" (or the backend feature isn't in use, in which case it's just the photo);
+            // `full` absent means it's been trimmed out locally after a successful sync, leaving only the
+            // small `thumb` as an offline fallback. Anything from before this format existed — a plain
+            // string in the array, or the old single-photo key — is entirely full-size and never trimmed,
+            // which is exactly right: those photos have never touched a backend, so "not yet synced" is
+            // the honest state for them too.
             function loadPhotosArray(id) {
                 try {
                     var raw = localStorage.getItem(photosKeyFor(id));
                     if (raw) {
                         var parsed = JSON.parse(raw);
-                        if (Array.isArray(parsed)) return parsed.filter(function (v) { return typeof v === 'string'; });
+                        if (Array.isArray(parsed)) {
+                            return parsed.map(function (entry) {
+                                if (typeof entry === 'string') return { full: entry };
+                                if (entry && typeof entry === 'object' && (entry.full || entry.thumb)) {
+                                    var out = {};
+                                    if (entry.full) out.full = entry.full;
+                                    if (entry.thumb) out.thumb = entry.thumb;
+                                    return out;
+                                }
+                                return null;
+                            }).filter(Boolean);
+                        }
                     }
                 } catch (e) {
                     console.warn('BITEMAP: could not read photos from localStorage', e);
                 }
                 var legacy = loadPhoto(id);
-                return legacy ? [legacy] : [];
+                return legacy ? [{ full: legacy }] : [];
             }
 
             // Removes any bitemap_photo_<id>/bitemap_photos_<id> entry whose id no longer belongs to a
@@ -2166,10 +2886,11 @@
                 toRemove.forEach(function (key) { localStorage.removeItem(key); });
             }
 
-            // Downscales + re-encodes a picked image file to a compressed JPEG data URL, so a multi-MB
-            // phone photo becomes small enough to comfortably fit alongside everything else in the
-            // shared localStorage quota.
-            function compressImageFile(file) {
+            // Downscales + re-encodes a picked image file into TWO compressed JPEG data URLs from one
+            // decode pass: the "full" reduced size (same as always — what's shared, and what gets sent to
+            // the backend), and a much smaller "thumb" that stays local indefinitely as an offline-viewing
+            // fallback even after the full copy is trimmed out post-sync.
+            function compressPhotoFile(file) {
                 return new Promise(function (resolve, reject) {
                     var reader = new FileReader();
                     reader.onerror = function () { reject(new Error('Could not read that file.')); };
@@ -2177,15 +2898,21 @@
                         var img = new Image();
                         img.onerror = function () { reject(new Error('Could not read that image.')); };
                         img.onload = function () {
-                            var scale = Math.min(1, PHOTO_MAX_DIMENSION / Math.max(img.width, img.height));
-                            var w = Math.max(1, Math.round(img.width * scale));
-                            var h = Math.max(1, Math.round(img.height * scale));
-                            var canvas = document.createElement('canvas');
-                            canvas.width = w;
-                            canvas.height = h;
-                            var ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0, w, h);
-                            resolve(canvas.toDataURL('image/jpeg', PHOTO_JPEG_QUALITY));
+                            function renderAt(maxDimension, quality) {
+                                var scale = Math.min(1, maxDimension / Math.max(img.width, img.height));
+                                var w = Math.max(1, Math.round(img.width * scale));
+                                var h = Math.max(1, Math.round(img.height * scale));
+                                var canvas = document.createElement('canvas');
+                                canvas.width = w;
+                                canvas.height = h;
+                                var ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, w, h);
+                                return canvas.toDataURL('image/jpeg', quality);
+                            }
+                            resolve({
+                                full: renderAt(PHOTO_MAX_DIMENSION, PHOTO_JPEG_QUALITY),
+                                thumb: renderAt(THUMB_MAX_DIMENSION, THUMB_JPEG_QUALITY)
+                            });
                         };
                         img.src = reader.result;
                     };
@@ -2377,24 +3104,47 @@
 
             // Renders whatever's currently in waypointDialogState.photos as a strip of thumbnails, each
             // with its own remove button, and shows/hides "Add photo" once the per-catch cap is hit.
+            // The best available image for a photo slot: the local full copy if we still have one, else
+            // whatever the backend handed back this dialog session, else the always-kept-locally thumbnail.
+            function bestPhotoSrc(photo) {
+                return photo.full || photo.remoteFull || photo.thumb || '';
+            }
+
             function renderWpPhotoStrip() {
                 if (!waypointDialogState) { wpPhotoStrip.innerHTML = ''; return; }
                 var photos = waypointDialogState.photos;
                 wpPhotoStrip.innerHTML = '';
 
-                photos.forEach(function (dataUrl, index) {
+                photos.forEach(function (photo, index) {
                     var thumb = document.createElement('div');
                     thumb.className = 'wp-photo-thumb';
 
                     var img = document.createElement('img');
-                    img.src = dataUrl;
+                    img.src = bestPhotoSrc(photo);
                     img.alt = 'Catch photo ' + (index + 1);
                     img.title = 'Click to view full size';
                     img.addEventListener('click', function () {
-                        photoLightboxImg.src = dataUrl;
+                        photoLightboxImg.src = bestPhotoSrc(photo);
                         photoLightbox.classList.add('open');
                     });
                     thumb.appendChild(img);
+
+                    // Two mutually-exclusive badges: either this slot is showing a low-res fallback because
+                    // neither a local nor a freshly-fetched full copy is available (offline, viewing an
+                    // already-synced catch), or it still has a local full copy waiting to reach the backend.
+                    if (!photo.full && !photo.remoteFull && photo.thumb) {
+                        var fallbackBadge = document.createElement('span');
+                        fallbackBadge.className = 'wp-photo-thumb-badge';
+                        fallbackBadge.title = 'Full photo unavailable right now — showing a low-res thumbnail';
+                        fallbackBadge.innerHTML = '<i class="fa fa-cloud-download"></i>';
+                        thumb.appendChild(fallbackBadge);
+                    } else if (photo.full && apiConfigured()) {
+                        var pendingBadge = document.createElement('span');
+                        pendingBadge.className = 'wp-photo-thumb-badge wp-photo-thumb-badge-pending';
+                        pendingBadge.title = 'Not backed up yet — will try again on Save';
+                        pendingBadge.innerHTML = '<i class="fa fa-exclamation"></i>';
+                        thumb.appendChild(pendingBadge);
+                    }
 
                     var removeBtn = document.createElement('button');
                     removeBtn.type = 'button';
@@ -2415,6 +3165,29 @@
                 var atMax = photos.length >= PHOTO_MAX_COUNT;
                 wpPhotoAddBtn.style.display = atMax ? 'none' : '';
                 wpPhotoGalleryBtn.style.display = atMax ? 'none' : '';
+
+                renderWpPhotoSyncStatus();
+            }
+
+            // A single summary line above the thumbnails — only shown at all when the backend is
+            // configured, since otherwise "backed up" has no meaning.
+            function renderWpPhotoSyncStatus() {
+                if (!waypointDialogState || !apiConfigured()) {
+                    wpPhotoSyncStatus.style.display = 'none';
+                    return;
+                }
+                var photos = waypointDialogState.photos;
+                var pending = photos.filter(function (p) { return p.full; }).length;
+                if (photos.length === 0) {
+                    wpPhotoSyncStatus.style.display = 'none';
+                } else if (pending > 0) {
+                    wpPhotoSyncStatus.textContent = pending + ' of ' + photos.length +
+                        ' photo' + (photos.length === 1 ? '' : 's') + ' not backed up yet — will try again on Save.';
+                    wpPhotoSyncStatus.style.display = '';
+                } else {
+                    wpPhotoSyncStatus.textContent = 'All photos backed up.';
+                    wpPhotoSyncStatus.style.display = '';
+                }
             }
 
             wpPhotoAddBtn.addEventListener('click', function () { wpPhotoInput.click(); });
@@ -2440,14 +3213,14 @@
                 var isFirstPhotoForExif = isAddMode && waypointDialogState.photos.length === 0;
 
                 Promise.all([
-                    compressImageFile(file),
+                    compressPhotoFile(file),
                     isFirstPhotoForExif ? extractExifData(file) : Promise.resolve({})
                 ]).then(function (results) {
-                    var dataUrl = results[0];
+                    var compressed = results[0];
                     var exif = results[1] || {};
                     if (!waypointDialogState) return; // dialog closed while we were working
 
-                    waypointDialogState.photos.push(dataUrl);
+                    waypointDialogState.photos.push(compressed); // { full, thumb } — brand new, so "full" is present until it syncs
                     renderWpPhotoStrip();
 
                     var appliedLocation = false, appliedTime = false;
@@ -2491,25 +3264,175 @@
             // saving failed (almost always a storage-quota issue), in which case whatever was already
             // stored is left untouched.
             function persistPhotosForSave(id, previousPhotoCount) {
-                var dataUrls = waypointDialogState.photos;
-                if (dataUrls.length === 0) {
+                var photos = waypointDialogState.photos;
+                if (photos.length === 0) {
                     try { localStorage.removeItem(photosKeyFor(id)); } catch (e) { /* nothing to do */ }
                     try { localStorage.removeItem(photoKeyFor(id)); } catch (e) { /* nothing to do */ }
                     return { hasPhoto: false, photoCount: 0, quotaFailed: false };
                 }
                 try {
-                    localStorage.setItem(photosKeyFor(id), JSON.stringify(dataUrls));
+                    var toStore = photos.map(function (p) {
+                        var entry = {};
+                        if (p.full) entry.full = p.full;
+                        if (p.thumb) entry.thumb = p.thumb;
+                        return entry;
+                    });
+                    localStorage.setItem(photosKeyFor(id), JSON.stringify(toStore));
                     try { localStorage.removeItem(photoKeyFor(id)); } catch (e) { /* nothing to do */ }
-                    return { hasPhoto: true, photoCount: dataUrls.length, quotaFailed: false };
+                    return { hasPhoto: true, photoCount: photos.length, quotaFailed: false };
                 } catch (e) {
                     console.warn('BITEMAP: could not save photos (likely storage quota)', e);
                     return { hasPhoto: previousPhotoCount > 0, photoCount: previousPhotoCount, quotaFailed: true };
                 }
             }
 
+            // ---------- Backend photo sync ----------
+            // Optional and additive: if Data URL/Token are blank, none of this runs and BITEMAP behaves
+            // exactly as it does fully local. Each photo is its own document, named purely by formula
+            // (photo_<waypointId>_<1-based index>) — never stored anywhere as data, so it can never drift
+            // out of sync with the waypoint it belongs to, and any device that has the waypoint (with its
+            // id) can always compute where to find its photos. Photo documents hold nothing but the
+            // compressed JPEG data URL itself — no wrapper, no duplicated lat/lon (the waypoint is already
+            // the one source of truth for that).
+            function apiConfigured() {
+                return !!(settings.apiDataUrl && settings.apiDataUrl.trim() && settings.apiToken && settings.apiToken.trim());
+            }
+
+            function photoApiUrl(waypointId, index1based) {
+                var base = settings.apiDataUrl.trim().replace(/\/+$/, '');
+                var type = 'photo_' + waypointId + '_' + index1based;
+                return base + '/data/' + encodeURIComponent(API_APP_NAME) + '/' +
+                    encodeURIComponent(settings.apiToken.trim()) + '/' + encodeURIComponent(type);
+            }
+
+            // Resolves to the photo's data URL string, or null if the slot is empty/unreachable/errored —
+            // callers treat all of those identically (fall back to the local thumbnail).
+            function fetchRemotePhoto(waypointId, index1based) {
+                return fetch(photoApiUrl(waypointId, index1based), { method: 'GET' })
+                    .then(function (res) { return res.ok ? res.json() : null; })
+                    .then(function (body) { return typeof body === 'string' && body ? body : null; })
+                    .catch(function () { return null; });
+            }
+
+            // Builds a thumbnail from an existing full-size data URL — used only to backfill photos that
+            // predate the thumbnail fallback (added before backend sync existed, so they were only ever
+            // stored as a single full copy). Resolves null on any failure rather than rejecting, since a
+            // missing thumbnail here should block trimming, not blow up the sync.
+            function makeThumbFromDataUrl(dataUrl) {
+                return new Promise(function (resolve) {
+                    try {
+                        var img = new Image();
+                        img.onerror = function () { resolve(null); };
+                        img.onload = function () {
+                            try {
+                                var scale = Math.min(1, THUMB_MAX_DIMENSION / Math.max(img.width, img.height));
+                                var w = Math.max(1, Math.round(img.width * scale));
+                                var h = Math.max(1, Math.round(img.height * scale));
+                                var canvas = document.createElement('canvas');
+                                canvas.width = w;
+                                canvas.height = h;
+                                var ctx = canvas.getContext('2d');
+                                ctx.drawImage(img, 0, 0, w, h);
+                                resolve(canvas.toDataURL('image/jpeg', THUMB_JPEG_QUALITY));
+                            } catch (e) { resolve(null); }
+                        };
+                        img.src = dataUrl;
+                    } catch (e) { resolve(null); }
+                });
+            }
+
+            // Resolves true/false — never rejects, so Promise.all over several of these can't be short-
+            // circuited by one bad slot.
+            function putRemotePhoto(waypointId, index1based, dataUrlOrNull) {
+                return fetch(photoApiUrl(waypointId, index1based), {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(dataUrlOrNull || {})
+                }).then(function (res) { return res.ok; }).catch(function () { return false; });
+            }
+
+            // Called after a Save: uploads every photo still holding a local `full` (new, or left over
+            // from a previous failed/skipped attempt), and clears out any slots beyond the current photo
+            // count that existed when the dialog was opened (handles photos removed this session — there's
+            // no delete endpoint, so an empty marker is written in their place instead). All-or-nothing: if
+            // any single request fails, nothing is trimmed locally, so every affected photo simply stays
+            // "not yet backed up" and gets retried whole on the next Save, rather than risking a partial,
+            // silently-inconsistent sync.
+            function syncPhotosToApi(waypointId, photos, initialSlotCount) {
+                if (!apiConfigured()) return;
+
+                var pendingIndexes = [];
+                photos.forEach(function (p, i) { if (p.full) pendingIndexes.push(i); });
+                var clearIndexes = [];
+                for (var i = photos.length; i < initialSlotCount; i++) clearIndexes.push(i);
+
+                if (pendingIndexes.length === 0 && clearIndexes.length === 0) return;
+
+                var requests = pendingIndexes.map(function (i) {
+                    return putRemotePhoto(waypointId, i + 1, photos[i].full).then(function (ok) { return { i: i, ok: ok, kind: 'upload' }; });
+                }).concat(clearIndexes.map(function (i) {
+                    return putRemotePhoto(waypointId, i + 1, null).then(function (ok) { return { i: i, ok: ok, kind: 'clear' }; });
+                }));
+
+                Promise.all(requests).then(function (results) {
+                    var allOk = results.every(function (r) { return r.ok; });
+                    if (!allOk) {
+                        showDataActionsStatus("Couldn't back up this catch's photos right now — reopen it and hit Save again once you've got a connection.");
+                        return;
+                    }
+                    // Trim the now-confirmed-synced photos down to thumbnail-only, straight in localStorage —
+                    // this waypoint's dialog is already closed by the time this resolves, so there's no
+                    // in-memory dialog state left to update.
+                    try {
+                        var stored = JSON.parse(localStorage.getItem(photosKeyFor(waypointId)) || '[]');
+                        var thumbTasks = pendingIndexes.map(function (i) {
+                            if (!stored[i] || !stored[i].full || stored[i].thumb) return Promise.resolve();
+                            // Legacy photo added before the thumbnail fallback existed — generate one now, before
+                            // `full` gets trimmed, so there's still something to show offline or if the server's
+                            // unreachable later. Without this, trimming would leave the entry with nothing at all.
+                            return makeThumbFromDataUrl(stored[i].full).then(function (thumb) {
+                                if (thumb) stored[i].thumb = thumb;
+                            });
+                        });
+                        Promise.all(thumbTasks).then(function () {
+                            pendingIndexes.forEach(function (i) {
+                                // Never trim a photo down to nothing — only drop `full` once a thumbnail exists to
+                                // fall back to (thumbnail generation above can fail on a corrupt/unreadable image).
+                                if (stored[i] && stored[i].thumb) delete stored[i].full;
+                            });
+                            localStorage.setItem(photosKeyFor(waypointId), JSON.stringify(stored));
+                        }).catch(function (e) {
+                            console.warn('BITEMAP: synced photos but could not trim local copies', e);
+                        });
+                    } catch (e) {
+                        console.warn('BITEMAP: synced photos but could not trim local copies', e);
+                    }
+                    showDataActionsStatus('Catch photos backed up.');
+                });
+            }
+
             // Holds the dialog's working context (mode, id, position, captured weather) between open and
             // save/delete — not persisted, just scratch state for whichever dialog is currently open.
             var waypointDialogState = null;
+
+            // Called right after a dialog opens with locally-loaded photos already rendered (so the dialog
+            // never waits on the network to appear). For any slot that's already been trimmed to
+            // thumbnail-only, tries to pull the real full-res copy down in the background; each one that
+            // succeeds gets re-rendered in place. Guards against the dialog having since closed or moved on
+            // to a different waypoint before a slow response comes back.
+            function fetchMissingFullPhotosForDialog(state) {
+                if (!apiConfigured()) return;
+                state.photos.forEach(function (photo, index) {
+                    if (photo.full || photo.remoteFull) return; // already have something better than the thumbnail
+                    fetchRemotePhoto(state.id, index + 1).then(function (dataUrl) {
+                        if (!dataUrl) return;
+                        if (waypointDialogState !== state) return; // dialog moved on while this was in flight
+                        if (!state.photos[index] || state.photos[index].full) return; // slot changed/removed/re-added meanwhile
+                        state.photos[index].remoteFull = dataUrl;
+                        renderWpPhotoStrip();
+                    });
+                });
+            }
 
             function openWaypointDialog(opts) {
                 var mode = opts.mode;
@@ -2523,9 +3446,14 @@
                     lat: lat,
                     lon: lon,
                     weatherBase: wp ? wp.weather : null,
-                    // Working list of this catch's photos, oldest first — compressed data URLs, exactly what
-                    // gets stored on Save.
+                    // Working list of this catch's photos, oldest first — { full?, thumb?, remoteFull? }
+                    // objects. `full` is what gets stored/sent on Save; `remoteFull` is only ever set in
+                    // memory, when a background fetch pulls down a copy this session for a slot that's
+                    // already been trimmed locally.
                     photos: [],
+                    // How many photo slots existed at open time — lets Save tell "removed this session" apart
+                    // from "never had one," so it knows which backend slots (if any) need clearing.
+                    initialPhotoCount: 0,
                     conditionsToken: 0 // bumped on every conditions fetch so a stale response can be ignored
                 };
 
@@ -2534,7 +3462,7 @@
                 waypointShare.style.display = mode === 'edit' ? '' : 'none';
                 setWpShareStatus('');
 
-                wpSpeciesInput.value = wp ? (wp.species || '') : '';
+                setWpSpecies(wp && wp.species ? wp.species : 'Fish');
                 wpLengthInput.value = wp && wp.lengthIn != null ? wp.lengthIn : '';
                 wpCaughtAtInput.value = toDatetimeLocalValue(wp && wp.caughtAt ? new Date(wp.caughtAt) : new Date());
                 wpNotesInput.value = wp ? (wp.notes || '') : '';
@@ -2542,8 +3470,10 @@
                 setWpPhotoStatus('');
                 if (wp && wp.hasPhoto) {
                     waypointDialogState.photos = loadPhotosArray(wp.id);
+                    waypointDialogState.initialPhotoCount = waypointDialogState.photos.length;
                 }
                 renderWpPhotoStrip();
+                fetchMissingFullPhotosForDialog(waypointDialogState);
 
                 if (mode === 'edit') {
                     // Editing shows the conditions captured at catch time — it never re-fetches, so the
@@ -2596,6 +3526,8 @@
             function closeWaypointDialog() {
                 waypointModal.classList.remove('open');
                 waypointDialogState = null;
+                closeColorCombo();
+                closeSpeciesCombo();
             }
 
             waypointModalClose.addEventListener('click', closeWaypointDialog);
@@ -2659,11 +3591,20 @@
                     }
                 }
 
+                // Captured before closeWaypointDialog() clears waypointDialogState — the sync call below
+                // runs after the dialog's already gone.
+                var syncWaypointId = waypointDialogState.id;
+                var syncPhotos = waypointDialogState.photos;
+                var syncInitialCount = waypointDialogState.initialPhotoCount;
+
                 saveWaypointsToStorage(waypoints);
                 closeWaypointDialog();
                 plotWaypoints();
                 if (photoResult && photoResult.quotaFailed) {
                     showDataActionsStatus("The catch saved, but a photo didn't fit — you're likely low on browser storage. Try removing a photo from an older catch first.");
+                }
+                if (photoResult && !photoResult.quotaFailed) {
+                    syncPhotosToApi(syncWaypointId, syncPhotos, syncInitialCount);
                 }
             });
 
@@ -2672,12 +3613,19 @@
                 var species = wpSpeciesInput.value.trim() || 'Fish';
                 if (!window.confirm('Delete this ' + species + ' catch? This can\'t be undone.')) return;
                 var id = waypointDialogState.id;
+                var priorPhotoCount = waypointDialogState.photos.length;
                 waypoints = waypoints.filter(function (w) { return w.id !== id; });
                 saveWaypointsToStorage(waypoints);
                 try { localStorage.removeItem(photoKeyFor(id)); } catch (e) { /* nothing to do */ }
                 try { localStorage.removeItem(photosKeyFor(id)); } catch (e) { /* nothing to do */ }
                 closeWaypointDialog();
                 plotWaypoints();
+                // Best-effort — there's no delete endpoint, so this just overwrites each slot with an empty
+                // marker. Nothing waits on it and a failure here is silent; the waypoint itself is already
+                // gone either way, this is only about not leaving orphaned photo data behind on the backend.
+                if (apiConfigured()) {
+                    for (var i = 0; i < priorPhotoCount; i++) putRemotePhoto(id, i + 1, null);
+                }
             });
 
             // Builds the text summary shared alongside (or instead of) the photo: species/length,
@@ -2742,8 +3690,8 @@
                     return;
                 }
 
-                Promise.all(photos.map(function (dataUrl, i) {
-                    return dataUrlToFile(dataUrl, 'bitemap-catch-' + (i + 1) + '.jpg');
+                Promise.all(photos.map(function (photo, i) {
+                    return dataUrlToFile(bestPhotoSrc(photo), 'bitemap-catch-' + (i + 1) + '.jpg');
                 })).then(function (files) {
                     if (navigator.share && navigator.canShare && navigator.canShare({ files: files })) {
                         navigator.share({ title: summary.title, text: summary.text, files: files }).catch(function (err) {
@@ -2785,6 +3733,14 @@
                 setUnitsChip(settings.units);
                 mapZoomInput.value = settings.mapZoom;
                 mapZoomValue.textContent = settings.mapZoom;
+                PIN_COLOR_PRESETS.forEach(function (hex) {
+                    colorLabelInputs[hex].value = colorLabelFor(hex);
+                });
+                settings.speciesPresets.forEach(function (name, idx) {
+                    speciesPresetInputs[idx].value = name;
+                });
+                apiDataUrlInput.value = settings.apiDataUrl || '';
+                apiTokenInput.value = settings.apiToken || '';
                 renderGeoStatus();
                 settingsModal.classList.add('open');
             }
@@ -2850,7 +3806,28 @@
                 settings.units = activeChip ? activeChip.dataset.units : 'imperial';
                 settings.mapZoom = parseInt(mapZoomInput.value, 10) || defaultSettings.mapZoom;
 
+                var newColorLabels = {};
+                PIN_COLOR_PRESETS.forEach(function (hex) {
+                    var label = colorLabelInputs[hex].value.trim();
+                    if (label) newColorLabels[hex.toUpperCase()] = label;
+                });
+                settings.colorLabels = newColorLabels;
+
+                settings.speciesPresets = speciesPresetInputs.map(function (input, idx) {
+                    var trimmed = input.value.trim();
+                    return trimmed || settings.speciesPresets[idx] || DEFAULT_SPECIES_PRESETS[idx] || ('Species ' + (idx + 1));
+                });
+
+                settings.apiDataUrl = apiDataUrlInput.value.trim();
+                settings.apiToken = apiTokenInput.value.trim();
+
                 saveSettingsToStorage(settings);
+                refreshColorSwatchTitles();
+                renderSpeciesComboList();
+                if (wpSpeciesInput.value) updateSpeciesComboButton(wpSpeciesInput.value);
+                renderFilterChips(); // may prune stale filter selections if a label/preset changed underneath them
+                saveSettingsToStorage(settings);
+                plotWaypoints();
                 renderLocationStrip();
                 closeSettings();
 
@@ -2952,6 +3929,9 @@
                 settings = Object.assign({}, defaultSettings);
                 saveSettingsToStorage(settings);
                 renderLocationStrip();
+                renderFilterChips();
+                applyFilterBarCollapsedState();
+                plotWaypoints();
                 if (leafletMap) {
                     var loc = getActiveLocation();
                     leafletMap.setView([loc.lat, loc.lon], settings.mapZoom);
