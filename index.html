@@ -3900,8 +3900,17 @@
                     headers: { 'Content-Type': 'text/html' },
                     body: html
                 }).then(function (res) {
-                    return res.ok ? sharePagePublicUrl(filename) : null;
-                }).catch(function () { return null; });
+                    if (!res.ok) {
+                        console.warn('BITEMAP: share page PUT failed with status', res.status, res.statusText);
+                        return null;
+                    }
+                    return sharePagePublicUrl(filename);
+                }).catch(function (err) {
+                    // Most often a CORS preflight rejection or the server being unreachable -- fetch surfaces
+                    // both as a generic network error with no status code to inspect.
+                    console.warn('BITEMAP: share page PUT errored (network or CORS issue?)', err);
+                    return null;
+                });
             }
 
             // Builds the text summary shared alongside (or instead of) the photo: species/length,
@@ -3948,22 +3957,25 @@
                 if (!summary) return;
                 setWpShareStatus('');
 
-                function shareTextOnly() {
+                function shareTextOnly(text) {
                     if (navigator.share) {
-                        navigator.share({ title: summary.title, text: summary.text }).catch(function (err) {
+                        navigator.share({ title: summary.title, text: text }).catch(function (err) {
                             if (err && err.name === 'AbortError') return; // user backed out of the share sheet
                             console.warn('BITEMAP: share failed', err);
-                            copyShareTextToClipboard(summary.text);
+                            copyShareTextToClipboard(text);
                         });
                     } else {
-                        copyShareTextToClipboard(summary.text);
+                        copyShareTextToClipboard(text);
                     }
                 }
 
-                function proceedWithShare() {
+                // Full old-style share: the catch's photo file(s) attached directly, plus the full text
+                // summary (species, conditions, notes, a plain Maps link). Used whenever there's no rich
+                // share-page link to lean on instead — no backend configured, or the push failed.
+                function shareFullDetails() {
                     var photos = waypointDialogState.photos;
                     if (!photos.length) {
-                        shareTextOnly();
+                        shareTextOnly(summary.text);
                         return;
                     }
 
@@ -3974,28 +3986,34 @@
                             navigator.share({ title: summary.title, text: summary.text, files: files }).catch(function (err) {
                                 if (err && err.name === 'AbortError') return;
                                 console.warn('BITEMAP: share with photos failed', err);
-                                shareTextOnly();
+                                shareTextOnly(summary.text);
                             });
                         } else {
                             // Can't share photo files on this browser — fall back to text-only share/copy so the
                             // catch details still get through.
-                            shareTextOnly();
+                            shareTextOnly(summary.text);
                         }
                     }).catch(function (err) {
                         console.warn('BITEMAP: could not prepare photos for sharing', err);
-                        shareTextOnly();
+                        shareTextOnly(summary.text);
                     });
                 }
 
-                // Best-effort: if a backend is configured, publish a rich share page for this catch first and
-                // fold its link into the shared text before opening the share sheet. Never blocks the share on
-                // failure — if the backend's unreachable or not configured, pushSharePage resolves null almost
-                // immediately and sharing proceeds exactly as it did before this feature existed.
+                // Best-effort: if a backend is configured, publish a rich share page for this catch first.
+                // When that succeeds, share ONLY the title + link -- pasting it into Messages/etc. unfurls
+                // into the photo/details preview on its own, so also attaching a raw photo file and dumping
+                // the full text would just duplicate what the link already shows. Falls back to the old full
+                // photo+text share whenever there's no backend configured or the push fails, so sharing never
+                // breaks or goes quiet just because the rich-link piece didn't work this time.
                 if (apiConfigured()) setWpShareStatus('Preparing shareable link…');
                 pushSharePage().then(function (url) {
-                    setWpShareStatus('');
-                    if (url) summary.text += '\n' + url;
-                    proceedWithShare();
+                    if (url) {
+                        setWpShareStatus('');
+                        shareTextOnly(summary.title + '\n' + url);
+                    } else {
+                        if (apiConfigured()) setWpShareStatus("Shared without the preview link — couldn't reach your server.");
+                        shareFullDetails();
+                    }
                 });
             });
 
