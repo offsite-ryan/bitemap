@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- BITEMAP_VERSION: v020 (bump only on a STABLE snapshot; keep this line and the
+<!-- BITEMAP_VERSION: v022 (bump only on a STABLE snapshot; keep this line and the
      #versionLabel text below in sync — the snapshot workflow greps this line) -->
 <html lang="en">
 
@@ -1535,7 +1535,7 @@
 
     <div id="versionLabel"
         style="text-align:center; padding:18px 0 26px; font-size:11px; letter-spacing:1px; color:var(--muted); font-family:Consolas,'Courier New',monospace;">
-        v020</div>
+        v022</div>
 
     <script>
         (function () {
@@ -3737,11 +3737,13 @@
             // ---------- Share page (rich link for texting/sharing) ----------
             // Generates a small, fully self-contained HTML page for one catch and PUTs it to the backend's
             // static-shared-folder endpoint, separate from the generic /data/... API. The filename is
-            // deterministic (share_<waypointId>.html), so BITEMAP never needs a round trip to learn where
-            // the page landed -- it computes the public URL itself. Re-sharing after an edit overwrites the
-            // same file (last write wins), so the same link works for everyone it was ever sent to.
+            // deterministic (bitemap_share_<waypointId>.html), so BITEMAP never needs a round trip to learn
+            // where the page landed -- it computes the public URL itself. Re-sharing after an edit
+            // overwrites the same file (last write wins), so the same link works for everyone it was ever
+            // sent to. Prefixed with the app name since the shared folder/endpoint is meant to be reused by
+            // other apps too, and filenames need to stay unique across all of them.
             function sharePageFilenameFor(waypointId) {
-                return 'share_' + waypointId + '.html';
+                return API_APP_NAME + '_share_' + waypointId + '.html';
             }
             function sharedFolderBase() {
                 return settings.apiDataUrl.trim().replace(/\/+$/, '');
