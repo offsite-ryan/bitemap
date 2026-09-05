@@ -522,6 +522,18 @@
             display: block;
         }
 
+        .wp-photo-thumb-loading {
+            width: 100%;
+            height: 100%;
+            border-radius: 8px;
+            border: 1px dashed var(--line);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 16px;
+        }
+
         .wp-photo-thumb-remove {
             position: absolute;
             top: -6px;
@@ -2850,14 +2862,18 @@
                         if (Array.isArray(parsed)) {
                             return parsed.map(function (entry) {
                                 if (typeof entry === 'string') return { full: entry };
-                                if (entry && typeof entry === 'object' && (entry.full || entry.thumb)) {
+                                if (entry && typeof entry === 'object') {
+                                    // Kept even when neither field is present — an empty {} is a placeholder for a
+                                    // photo this device knows exists (synced from elsewhere) but hasn't fetched yet.
+                                    // Dropping it here would shift every later photo's index, which breaks the
+                                    // position-addressed photo_<id>_<n> documents on the backend.
                                     var out = {};
                                     if (entry.full) out.full = entry.full;
                                     if (entry.thumb) out.thumb = entry.thumb;
                                     return out;
                                 }
                                 return null;
-                            }).filter(Boolean);
+                            }).filter(function (e) { return e !== null; });
                         }
                     }
                 } catch (e) {
@@ -3119,15 +3135,27 @@
                     var thumb = document.createElement('div');
                     thumb.className = 'wp-photo-thumb';
 
-                    var img = document.createElement('img');
-                    img.src = bestPhotoSrc(photo);
-                    img.alt = 'Catch photo ' + (index + 1);
-                    img.title = 'Click to view full size';
-                    img.addEventListener('click', function () {
-                        photoLightboxImg.src = bestPhotoSrc(photo);
-                        photoLightbox.classList.add('open');
-                    });
-                    thumb.appendChild(img);
+                    var src = bestPhotoSrc(photo);
+                    if (src) {
+                        var img = document.createElement('img');
+                        img.src = src;
+                        img.alt = 'Catch photo ' + (index + 1);
+                        img.title = 'Click to view full size';
+                        img.addEventListener('click', function () {
+                            photoLightboxImg.src = bestPhotoSrc(photo);
+                            photoLightbox.classList.add('open');
+                        });
+                        thumb.appendChild(img);
+                    } else {
+                        // Placeholder slot — a photo exists (synced from another device) but nothing's been
+                        // pulled down for it yet. fetchMissingFullPhotosForDialog is fetching it in the
+                        // background and will re-render this strip once it lands.
+                        var loading = document.createElement('div');
+                        loading.className = 'wp-photo-thumb-loading';
+                        loading.innerHTML = '<i class="fa fa-spinner fa-spin"></i>';
+                        loading.title = 'Fetching this photo from your backend…';
+                        thumb.appendChild(loading);
+                    }
 
                     // Two mutually-exclusive badges: either this slot is showing a low-res fallback because
                     // neither a local nor a freshly-fetched full copy is available (offline, viewing an
@@ -3470,6 +3498,16 @@
                 setWpPhotoStatus('');
                 if (wp && wp.hasPhoto) {
                     waypointDialogState.photos = loadPhotosArray(wp.id);
+                    // A waypoint imported onto a device that never took these photos itself (e.g. brought in
+                    // via Export/Import from another device) knows it HAS photoCount photos, but has zero of
+                    // them locally — Export/Import only ever carries the waypoint fields, never the photo
+                    // data. If a backend is configured, pad up to the known count with empty placeholders so
+                    // there's something for the background fetch below to actually pull down; without this,
+                    // there'd be nothing to loop over and it would silently fetch nothing at all.
+                    if (apiConfigured()) {
+                        var expectedCount = wp.photoCount != null ? wp.photoCount : 1;
+                        while (waypointDialogState.photos.length < expectedCount) waypointDialogState.photos.push({});
+                    }
                     waypointDialogState.initialPhotoCount = waypointDialogState.photos.length;
                 }
                 renderWpPhotoStrip();
