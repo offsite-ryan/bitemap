@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- BITEMAP_VERSION: v022 (bump only on a STABLE snapshot; keep this line and the
+<!-- BITEMAP_VERSION: v023 (bump only on a STABLE snapshot; keep this line and the
      #versionLabel text below in sync — the snapshot workflow greps this line) -->
 <html lang="en">
 
@@ -272,6 +272,77 @@
 
         .btn-save:hover {
             opacity: .9;
+        }
+
+        /* ---------- Welcome dialog (first load only) ---------- */
+        .welcome-box {
+            padding: 26px 24px 22px;
+        }
+
+        .welcome-header {
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .welcome-header .modal-title {
+            font-size: 19px;
+        }
+
+        .welcome-tagline {
+            font-size: 12.5px;
+            color: var(--muted);
+            margin: 4px 0 0 0;
+        }
+
+        .welcome-feature {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .welcome-feature-icon {
+            flex-shrink: 0;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            border: 1.5px solid var(--c);
+            color: var(--c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 15px;
+            background: color-mix(in srgb, var(--c) 12%, transparent);
+        }
+
+        .welcome-feature-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin: 0;
+            color: var(--ink);
+        }
+
+        .welcome-feature-desc {
+            font-size: 12px;
+            color: var(--muted);
+            margin: 2px 0 0 0;
+        }
+
+        .welcome-tip {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg2);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            padding: 10px 12px;
+            font-size: 11.5px;
+            color: var(--muted);
+            margin-top: 6px;
+        }
+
+        .welcome-tip i {
+            color: var(--pressure);
         }
 
         .settings-section-label {
@@ -1454,6 +1525,64 @@
         </div>
     </div>
 
+    <!-- Shown once, on this device's very first load, and never again after it's dismissed. No X
+       and no click-outside-to-close — Got it is the only way out, so it can't be missed by
+       accident before anyone's read it. -->
+    <div class="modal-overlay" id="welcomeModal">
+        <div class="modal-box welcome-box">
+            <div class="welcome-header">
+                <svg width="40" height="44" viewBox="0 0 200 220" aria-hidden="true">
+                    <defs>
+                        <linearGradient id="welcomePinGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0" stop-color="var(--wind)" />
+                            <stop offset="1" stop-color="var(--pressure)" />
+                        </linearGradient>
+                        <mask id="welcomePinWaveMask">
+                            <rect width="200" height="220" fill="white" />
+                            <path d="M14,112 C46,90 68,134 100,112 C132,90 154,134 186,112" stroke="black"
+                                stroke-width="20" fill="none" stroke-linecap="round" />
+                        </mask>
+                    </defs>
+                    <path
+                        d="M100,14 C55,14 22,48 22,90 C22,145 100,206 100,206 C100,206 178,145 178,90 C178,48 145,14 100,14 Z"
+                        fill="url(#welcomePinGrad)" mask="url(#welcomePinWaveMask)" />
+                </svg>
+                <p class="modal-title" style="margin-top:8px;">Welcome to BITEMAP</p>
+                <p class="welcome-tagline">Drop a pin. Tag the catch. Never lose the spot.</p>
+            </div>
+
+            <div class="welcome-feature">
+                <div class="welcome-feature-icon" style="--c:var(--wind)"><i class="fa fa-map-marker"></i></div>
+                <div>
+                    <p class="welcome-feature-title">Tap to log a catch</p>
+                    <p class="welcome-feature-desc">Right on the map, photo optional.</p>
+                </div>
+            </div>
+            <div class="welcome-feature">
+                <div class="welcome-feature-icon" style="--c:var(--temp)"><i class="fa fa-paint-brush"></i></div>
+                <div>
+                    <p class="welcome-feature-title">Color-code your spots</p>
+                    <p class="welcome-feature-desc">Pin colors and species tags, your way.</p>
+                </div>
+            </div>
+            <div class="welcome-feature">
+                <div class="welcome-feature-icon" style="--c:var(--pressure)"><i class="fa fa-camera"></i></div>
+                <div>
+                    <p class="welcome-feature-title">Catch up later</p>
+                    <p class="welcome-feature-desc">Import camera roll photos — they'll map themselves.</p>
+                </div>
+            </div>
+
+            <div class="welcome-tip">
+                <i class="fa fa-refresh"></i> Optional: sync catches across your devices in Settings.
+            </div>
+
+            <div class="modal-actions">
+                <button class="btn-save" id="welcomeModalDone" style="width:100%;">Got it</button>
+            </div>
+        </div>
+    </div>
+
     <div class="modal-overlay photo-lightbox" id="photoLightbox">
         <button class="modal-close photo-lightbox-close" id="photoLightboxClose" aria-label="Close"><i
                 class="fa fa-times"></i></button>
@@ -1535,7 +1664,7 @@
 
     <div id="versionLabel"
         style="text-align:center; padding:18px 0 26px; font-size:11px; letter-spacing:1px; color:var(--muted); font-family:Consolas,'Courier New',monospace;">
-        v022</div>
+        v023</div>
 
     <script>
         (function () {
@@ -1675,6 +1804,19 @@
                 }
             ];
 
+            // ---------- Welcome dialog (first load only) ----------
+            // A standalone flag, deliberately kept out of `settings` -- it's a per-device "has this browser
+            // seen it" marker, not a preference, so it must never travel through Export/Import or backend
+            // sync (a synced-in "already seen" from one device would wrongly suppress it on a brand new
+            // one). Once dismissed here, it's dismissed for good on this device.
+            var WELCOME_SEEN_KEY = 'bitemap_welcome_seen_v1';
+            function hasSeenWelcome() {
+                try { return localStorage.getItem(WELCOME_SEEN_KEY) === '1'; } catch (e) { return true; } // fail closed: never nag if storage is blocked
+            }
+            function markWelcomeSeen() {
+                try { localStorage.setItem(WELCOME_SEEN_KEY, '1'); } catch (e) { /* nothing to do */ }
+            }
+
             // ---------- Real (user-added) waypoints ----------
             // Stored in localStorage until the real backend is wired up. As soon as there's at least one
             // real waypoint, the sample set above stops being shown — real data replaces the placeholders.
@@ -1711,6 +1853,8 @@
             var helpModal = document.getElementById('helpModal');
             var helpModalClose = document.getElementById('helpModalClose');
             var helpModalDone = document.getElementById('helpModalDone');
+            var welcomeModal = document.getElementById('welcomeModal');
+            var welcomeModalDone = document.getElementById('welcomeModalDone');
             var photoLightbox = document.getElementById('photoLightbox');
             var photoLightboxImg = document.getElementById('photoLightboxImg');
             var photoLightboxClose = document.getElementById('photoLightboxClose');
@@ -4089,6 +4233,16 @@
             helpModal.addEventListener('click', function (e) {
                 if (e.target === helpModal) helpModal.classList.remove('open');
             });
+
+            // Deliberately no close-on-backdrop-click and no X here (unlike Help) — Got it is the only way
+            // out, so a first-time visitor can't accidentally dismiss it before reading it.
+            welcomeModalDone.addEventListener('click', function () {
+                welcomeModal.classList.remove('open');
+                markWelcomeSeen();
+            });
+            if (!hasSeenWelcome()) {
+                setTimeout(function () { welcomeModal.classList.add('open'); }, 500);
+            }
 
             settingsBtn.addEventListener('click', openSettings);
             settingsClose.addEventListener('click', closeSettings);
